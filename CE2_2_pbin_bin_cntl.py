@@ -93,34 +93,3 @@ def bin_cntl(df: pd.DataFrame,
         f.write(f"KEEP_LIST_B = {new_vars}\n")
     profile_df = pd.concat(profiles, ignore_index=True) if profiles else pd.DataFrame()
     return vars2, profile_df, new_vars
-
-# Example usage
-df = pd.read_csv('D:/OneDrive/CE_PROJECT/Python_CE_Project_GH/SAS2PYTHON/Titanic-Dataset.csv')
-
-df['IsFemale'] = (df['Sex']=='female').astype(int)
-df['IsChild'] = (df['Age'] < 18).astype(int)
-
-# Prepare vars2
-vars2 = pd.DataFrame({
-    'name':['IsFemale','IsChild'],
-    'label':['Is Female','Is Child']
-})
-
-# Test bin_cntl on both variables
-vars2_updated, profile_df, keep_vars = bin_cntl(
-    df, ['IsFemale','IsChild'], vars2.copy(),
-    'D:/OneDrive/CE_PROJECT/Python_CE_Project_GH/SAS2PYTHON/', prefix='R1_',
-    dep_var='Survived', missrate=0.75,
-    concrate=0.9, profiling=True,
-    typ_map={'IsFemale':1,'IsChild':1}
-)
-
-# Display outputs
-print(vars2_updated)
-print(profile_df)
-print(keep_vars)
-
-# Print generated Python recode script
-with open('D:/OneDrive/CE_PROJECT/Python_CE_Project_GH/SAS2PYTHON/CE2_Binary_Var_Recode.py','r') as f:
-    script = f.read()
-print("Generated CE2_Binary_Var_Recode.py:\n", script)

@@ -1,6 +1,6 @@
-2025-06-17 12:44:19,205 INFO: Starting CE_Sampling
-2025-06-17 12:44:25,229 INFO: Split: 626 model, 265 test
-2025-06-17 12:44:26,199 INFO: Original Survived frequencies: {0: 549, 1: 342}
-2025-06-17 12:44:33,620 INFO: Marked 312 records as Validation
-2025-06-17 12:47:23,560 INFO: Wrote sample rate summary to D:/OneDrive/CE_PROJECT/Python_CE_Project_GH/SAS2PYTHON/CE1_Sample_Rate.csv
-2025-06-17 12:47:24,615 INFO: Completed CE_Sampling
+2025-06-17 18:24:36,644 INFO: Starting CE_Sampling
+2025-06-17 18:24:36,644 INFO: Split: 626 model, 265 test
+2025-06-17 18:24:36,644 INFO: Original Survived frequencies: {0: 549, 1: 342}
+2025-06-17 18:24:36,650 INFO: Marked 312 records as Validation
+2025-06-17 18:24:36,650 INFO: Wrote sample rate summary to D:/OneDrive/CE_PROJECT/Python_CE_Project_GH/SAS2PYTHON/CE1_Sample_Rate.csv
+2025-06-17 18:24:36,650 INFO: Completed CE_Sampling

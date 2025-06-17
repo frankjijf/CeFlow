@@ -1,8 +1,0 @@
-*** RECODE Age ***;
-IF missing(Age) THEN R1_Age = 28.0;
-ELSE R1_Age = Age;
-R1_Age = MIN(MAX(R1_Age,0.42),79.805);
-Label R1_Age = 'Age: Recode (-)';
-LN_Age = LOG(MAX(R1_Age,0.00001));
-Label LN_Age = 'Age LN_ (-)';
-

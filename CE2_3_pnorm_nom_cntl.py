@@ -174,30 +174,3 @@ def nom_cntl(df: pd.DataFrame,
         f.write(f"KEEP_LIST_N = {keep_list}\n")
     profile_df = pd.concat(profiles, ignore_index=True) if profiles else pd.DataFrame()
     return vars2, profile_df, keep_list
-
-# Example usage:
-df = pd.read_csv('D:/OneDrive/CE_PROJECT/Python_CE_Project_GH/SAS2PYTHON/Titanic-Dataset.csv')
-
-# Prepare vars2 for 'Embarked'
-vars2_nom = pd.DataFrame({
-    'name': ['Embarked'],
-    'label': ['Port of Embarkation']
-})
-
-# Test nom_cntl on 'Embarked'
-vars2_updated, profile_nom, keep_nom = nom_cntl(
-    df, ['Embarked'], vars2_nom.copy(),
-    'D:/OneDrive/CE_PROJECT/Python_CE_Project_GH/SAS2PYTHON/', 'R1_',
-    'Survived', 0.75, 0.9, 50, 500, 0.05,
-    0.05, True, 'BINARY', True
-)
-
-# Display results
-print(vars2_updated)
-print(profile_nom)
-print(keep_nom)
-
-# Show generated Python recode script
-with open('D:/OneDrive/CE_PROJECT/Python_CE_Project_GH/SAS2PYTHON/CE2_Nominal_Var_Recode.py','r') as f:
-    script = f.read()
-print("Generated CE2_Nominal_Var_Recode.py:\n", script)

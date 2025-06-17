@@ -193,3 +193,8 @@ resampled_df, sample_rate_df = CE_Sampling(
     seed=654321,
     path_output='D:/OneDrive/CE_PROJECT/Python_CE_Project_GH/SAS2PYTHON/'
 )
+
+resampled_df.to_csv(
+    'D:/OneDrive/CE_PROJECT/Python_CE_Project_GH/SAS2PYTHON/CE1_Resampled_Titanic.csv',
+    index=False
+)

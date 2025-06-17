@@ -1,3 +1,4 @@
+
 import pandas as pd
 import numpy as np
 import statsmodels.api as sm
@@ -134,32 +135,40 @@ def pnum(df: pd.DataFrame,
     if best['Prob']<=alpha:
         vars2.loc[cond,['new_var','Sign','Relationship']]=[best_col,sign,pref+sign]
 
-    # 11. Write recode
-    fname=f"CE2_{'Continuous' if typ.upper()=='C' else 'Ordinal'}_Var_Recode.txt"
-    op=f"{path_output.rstrip('/')}/{fname}"
-    sas_map={
-        'SQ_':f"{prefix}{var}**2",
-        'SR_':f"SQRT(MAX({prefix}{var},0))",
-        'LN_':f"LOG(MAX({prefix}{var},0.00001))",
-        'IV_':f"-1/(MAX({prefix}{var},0.00001))",
-        'EP_':f"-EXP(MIN(-{prefix}{var},0))",
-        '':f"{prefix}{var}"
+    # 11. Write Python recode
+    py_fname = f"CE2_{'Continuous' if typ.upper()=='C' else 'Ordinal'}_Var_Recode.py"
+    os.makedirs(path_output, exist_ok=True)
+    op = os.path.join(path_output, py_fname)
+
+    # 映射不同变换到 Python 表达式
+    py_map = {
+        'SQ_': lambda p: f"{p}**2",
+        'SR_': lambda p: f"np.sqrt(np.maximum({p}, 0))",
+        'LN_': lambda p: f"np.log(np.maximum({p}, 1e-5))",
+        'IV_': lambda p: f"-1/np.maximum({p}, 1e-5)",
+        'EP_': lambda p: f"-np.exp(np.minimum(-{p}, 0))",
+        '':   lambda p: p
     }
-    ts=sas_map[pref]
-    with open(op,'a') as f:
-        f.write(f"*** RECODE {var} ***;\n")
-        f.write(f"IF missing({var}) THEN {prefix}{var} = {var_miss};\n")
-        f.write(f"ELSE {prefix}{var} = {var};\n")
+    target = f"df['{prefix}{var}']"
+    source = f"df['{var}']"
+
+    with open(op, 'a') as f:
+        f.write(f"# --- Recode variable: {var} ---\n")
+        # ① 缺失填补
+        f.write(f"{target} = {source}.fillna({var_miss})\n")
+        # ② Capping/Flooring
         if (typ.upper()=='C' and cap_flrC) or (typ.upper()=='O' and cap_flrO):
-            f.write(f"{prefix}{var} = MIN(MAX({prefix}{var},{var_lb}),{var_ub});\n")
-        f.write(f"Label {prefix}{var} = '{var}: Recode {sign}';\n")
+            f.write(f"{target} = {target}.clip(lower={var_lb}, upper={var_ub})\n")
+        # ③ Label 属性（可选）
+        f.write(f"{target}.attrs['label'] = '{var}: Recode {sign}'\n")
+        # ④ 最佳变换
         if pref:
-            f.write(f"{best_col} = {ts};\n")
-            f.write(f"Label {best_col} = '{var} {pref} {sign}';\n")
+            transform_expr = py_map[pref](target)
+            f.write(f"df['{best_col}'] = {transform_expr}\n")
+            f.write(f"df['{best_col}'].attrs['label'] = '{var} {pref} {sign}'\n")
         f.write("\n")
 
     return vars2
-
 
 def prof1(df: pd.DataFrame,
           var: str,
@@ -262,65 +271,3 @@ def prof3(vars2: pd.DataFrame,
         })
     result = pd.DataFrame(out)
     return result
-
-# Example usage of the pnum, prof1, prof2, and prof3 functions
-# Load Titanic dataset
-df = pd.read_csv('D:/OneDrive/CE_PROJECT/Python_CE_Project_GH/SAS2PYTHON/Titanic-Dataset.csv')
-
-# Prepare vars2 DataFrame
-vars2 = pd.DataFrame({
-    'name': ['Age'],
-    'var_lb': [np.nan],
-    'var_ub': [np.nan],
-    'var_median': [np.nan],
-    'miss_impute': [np.nan],
-    'Chisq': [np.nan],
-    'PValue': [np.nan],
-    'new_var': [''],
-    'Sign': [''],
-    'Relationship': ['']
-})
-
-# Test pnum on 'Age'
-path_output = 'D:/OneDrive/CE_PROJECT/Python_CE_Project_GH/SAS2PYTHON/'
-vars2_updated = pnum(df=df,
-                     var='Age',
-                     dep_var='Survived',
-                     typ='C',
-                     vars2=vars2,
-                     path_output=path_output,
-                     prefix='R1_',
-                     binary_dv=True,
-                     transformationC=True,
-                     cap_flrC=True)
-# Display results
-print(vars2_updated)
-# Show recode script
-with open(f"{path_output}/CE2_Continuous_Var_Recode.txt", 'r') as f:
-    script = f.read()
-
-print("Generated SAS Recode Script:\n")
-print(script)
-
-# Calculate overall average and number of observations
-
-overall_avg = df['Survived'].mean()
-print(overall_avg)
-nobs = len(df)
-print(nobs)
-
-# Test prof1 on 'Pclass'
-prof1_pclass = prof1(df, 'Pclass', 'Survived')
-print(prof1_pclass)
-
-# Test prof2 on 'Age'
-prof2_age = prof2(df, 'Age', 'Survived', num_category=5, equal_dist=False)
-print(prof2_age)
-
-# Prepare minimal vars2 for 'Age'
-vars2_age = pd.DataFrame({'name': ['Age']})
-print(vars2_age)
-
-# Use prof2 output for prof3
-prof3_age = prof3(vars2_age, prof2_age, var='Age', overall_avg=overall_avg, nobs=nobs, typ='C', dep_var='Survived')
-print(prof3_age)

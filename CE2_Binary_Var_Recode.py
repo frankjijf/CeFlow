@@ -3,11 +3,11 @@
 
 # Recode variable: IsFemale
 df['R1_IsFemale'] = (df['IsFemale']==1).astype(int)
-df['R1_IsFemale'].attrs['label'] = 'Is Female: Binary Recode'
+df['R1_IsFemale'].attrs['label'] = 'IsFemale: Binary Recode'
 
 # Recode variable: IsChild
 df['R1_IsChild'] = (df['IsChild']==1).astype(int)
-df['R1_IsChild'].attrs['label'] = 'Is Child: Binary Recode'
+df['R1_IsChild'].attrs['label'] = 'IsChild: Binary Recode'
 
 
 # KEEP_LIST_B
