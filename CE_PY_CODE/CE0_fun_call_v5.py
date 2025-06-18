@@ -3,96 +3,114 @@ import pandas as pd
 import numpy as np
 import os
 
-# Assigning paths and dataset names
-loc = r"D:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON"
-lib = loc  # SAS dataset libname
-out = loc + r"\ce_output"  # CE output libname
-
-os.makedirs(loc, exist_ok=True)
-
-# Configuration dictionary (like global variables)
-path_output = loc + r"\ce_output"  # Your output destination folder
-inds = pd.read_csv(lib + r"\Titanic-Dataset.csv")  # Your SAS input dataset name (assuming CSV)
-
 # Loading variable lists
-import contvar_list as contvar_list
-import nomvar_list as nomvar_list
-import binvar_list as binvar_list
-import ordvar_list as ordvar_list
+import Titanic_test.contvar_list as contvar_list
+import Titanic_test.nomvar_list as nomvar_list
+import Titanic_test.binvar_list as binvar_list
+import Titanic_test.ordvar_list as ordvar_list
 
-contvar = contvar_list.contvar_list()
-nomvar = nomvar_list.nomvar_list()
-binvar = binvar_list.binvar_list()
-ordvar = ordvar_list.ordvar_list()
+# Assigning paths and dataset names
+lib_dir = r"D:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\Titanic_test"
+out_dir = os.path.join(lib_dir, "ce_output")
+os.makedirs(lib_dir, exist_ok=True)
 
+# Create output directory if it doesn't exist
+log_dir = os.path.join(lib_dir, "log")
+os.makedirs(log_dir, exist_ok=True)
+log_path_01 = os.path.join(log_dir, "01_CE_Sampling_Log_File.log")
+lst_path_01 = os.path.join(log_dir, "01_CE_Sampling_LST_File.lst")
+log_path_02 = os.path.join(log_dir, "02_CE_EDA_Recode_Log_File.log")
+lst_path_02 = os.path.join(log_dir, "02_CE_EDA_Recode_LST_File.lst")
+
+# Load the dataset
+inds = pd.read_csv(os.path.join(lib_dir, "Titanic-Dataset.csv"))  # Your SAS input dataset name (assuming CSV)
 inds['IsFemale'] = (inds['Sex']=='female').astype(int)
 inds['IsChild'] = (inds['Age'] < 18).astype(int)
 
 # Mandatory Macro Variables: These must be set
-config_CE1 = {
+config = {
+    # Variable Lists
+        "contvar" : contvar_list.contvar_list(),  # Your continuous variable list
+        "nomvar" : nomvar_list.nomvar_list(),  # Your nominal variable list
+        "binvar" : binvar_list.binvar_list(),  # Your binary variable list
+        "ordvar" : ordvar_list.ordvar_list(),  # Your ordinal variable list
     # General Macro Variables
+        "path_output" : out_dir,  # your output destination folder
+        "inds" : inds,  # your input dataset name
         "id" : 'PassengerId',  # Unique ID
         "dep_var" : 'Survived',  # Your dependent variable
         "binary_dv" : 'Y',  # Your dependent variable type (Y/N)
         "weight" : None,  # If you want to use weights, set this variable to the name of your weight variable
-    # Optional Macro Variables: These all have defaults that can be used
-        "prefix" : 'R1_',  # Your variable recoding prefix
-
     # Macro 1: Sampling macro variables
-        "split_if": "np.random.rand() < 0.7",  # Your split condition for modeling portion
-        "exclusion_if": "",  # Data exclusion condition; set an actual condition if needed, e.g., "data[dep_var].notna()"
-        "DS_Present": 'N',  # Change to 'Y' only if your data contains the standard DS modeling bundle
+        "split_portion": 0.7,  # Your split portion for modeling portion
+        "exclusion_if": "inds[dep_var].isna()",  # Data exclusion condition; set an actual condition if needed, e.g., "data[dep_var].notna()"
+        "DS_present": 'N',  # Change to 'Y' only if your data contains the standard DS modeling bundle
     # Optional Macro Variables: These all have defaults that can be used
+    # General Macro Variables
+        "prefix" : 'R1_',  # Your variable recoding prefix
+        "keep_list" : None,  # Add any additional variables you want to keep for analysis purposes
+    # Macro 1: Sampling macro variables
         "path_DS": "/mnt/projects/shared/pst_qmgisi/Modeling/CE/",  # Location of standard DS recodes. Do not change
         "bootstrap": 'Y',  # Request oversampling, bootstrap if responders size is small (Y/N). Binary DV only
         "oversampled_rr": 0.1,  # Your desired oversample response rate on the modeling part of data, 0.1-0.5
         "min_num_resp": 2000,  # Minimum number of responders if sampling
         "seed": 123456,  # Random selection seed if sampling
-    #   "keep_list" : ['id', 'dep_var', 'weight', 'mod_val_test']  # Add any additional variables you want to keep for analysis purposes
+    # Macro 2: Recoding macro variables
+        "profiling": 'Y',  # Request profiling report on all variables (Y/N)
+        "missrate": 0.75,  # Maximum missing rate allowed
+        "concrate": 0.9,  # Maximum amount of file that can be in a single value of an independent variable
+        "valcnt": 50,  # Maximum number of unique values allowed. Set to 0 to allow any number
+        "minbinnc": 500,  # Minimum count in a bin to be usable. Set to 0 to use minbinpct only
+        "minbinnp": 0.05,  # Minimum percent of file in a bin to be usable. Set to 0 to use minbincnt only
+        "talpha": 0.05,  # T-Test significance level for collapse of bins
+        "bonfer": 'N',  # Do Bonferroni adjustment for talpha? (Y/N)
+        "nom_method": 'INDEX',  # Recoding method for nominal variables: Binary, Index or Mean
+        "pvalue": 0.05,  # P-value threshold to include variable
+        "min_size": 500,  # Minimum missing group size for Equal Response imputation
+        "num_category": 10,  # Maximum number of categories for profiling variables
+        "equal_dist": 'N',  # Use equal distance for dividing variables into groups for profiling (Y/N)
+        "p_lo": 1,  # Lower percentile for checking constant value
+        "p_hi": 99,  # Upper percentile for checking constant value
+        "impmethodC": 'median',  # What method to use for missing imputation for continuous variables?
+        # Options are ER for Equal Response or any proc stdize method
+        "stdmethodC": 'STD',  # Standardization options: any method allowed in proc stdize or NO to skip
+        "cap_flrC": 'Y',  # Do you want to do capping/flooring to handle outliers? (Y/N)
+        "transformationC": 'Y',  # Include transformed variables in evaluation (Y/N)
+        "impmethodO": 'mean',  # What method to use for missing imputation for ordinal variables?
+        "stdmethodO": 'No',  # Standardization options: any method allowed in proc stdize or NO to skip
+        "cap_flrO": 'N',  # Do you want to do capping/flooring to handle outliers? (Y/N)
+        "transformationO": 'N',  # Include transformed variables in evaluation? (Y/N)
 }
 
 ################# RUN #################
 
 from CE1_sampling import CE_Sampling
+from CE_log import printto
 from CE2_1_pnum_prof123 import pnum, prof1, prof2, prof3
 from CE2_2_pbin_bin_cntl import bin_cntl
 from CE2_3_pnorm_nom_cntl import nom_cntl
 from CE2_4_pord_ord_cntl import ord_cntl
 from CE2_5_pcon_cont_cntl import cont_cntl
+from CE2_6_CE_EDA_Recode import CE_EDA_Recode
 
 # 调用 CE_Sampling 函数时传递这些参数
-resampled_df, sample_rate_df = CE_Sampling(inds, config_CE1)
+with printto(log=log_path_01, lst=lst_path_01) as logger:
+    CE1_Resampled, CE1_Sample_Rate = CE_Sampling(
+        config  = config,
+        logger  = logger)
 
-# 1. Sampling
+with printto(log=log_path_02, lst=log_path_02) as logger:
+    CE2_Recoded, profile_df, var_lookup_df = CE_EDA_Recode(
+        indsn   = CE1_Resampled,
+        config  = config,
+        logger  = logger
+    )
 
-# Macro 2: Recoding macro variables
-config_CE2 = {
-    # Optional Macro Variables: These all have defaults that can be used
-    "Profiling": 'Y',  # Request profiling report on all variables (Y/N)
-    "missrate": 0.75,  # Maximum missing rate allowed
-    "concrate": 0.9,  # Maximum amount of file that can be in a single value of an independent variable
-    "valcnt": 50,  # Maximum number of unique values allowed. Set to 0 to allow any number
-    "minbinnc": 500,  # Minimum count in a bin to be usable. Set to 0 to use minbinpct only
-    "minbinnp": 0.05,  # Minimum percent of file in a bin to be usable. Set to 0 to use minbincnt only
-    "talpha": 0.05,  # T-Test significance level for collapse of bins
-    "bonfer": 'N',  # Do Bonferroni adjustment for talpha? (Y/N)
-    "nom_method": 'INDEX',  # Recoding method for nominal variables: Binary, Index or Mean
-    "pvalue": 0.05,  # P-value threshold to include variable
-    "min_size": 500,  # Minimum missing group size for Equal Response imputation
-    "num_category": 10,  # Maximum number of categories for profiling variables
-    "equal_dist": 'N',  # Use equal distance for dividing variables into groups for profiling (Y/N)
-    "p_lo": 1,  # Lower percentile for checking constant value
-    "p_hi": 99,  # Upper percentile for checking constant value
-    "impmethodC": 'median',  # What method to use for missing imputation for continuous variables?
-    # Options are ER for Equal Response or any proc stdize method
-    "stdmethodC": 'STD',  # Standardization options: any method allowed in proc stdize or NO to skip
-    "cap_flrC": 'Y',  # Do you want to do capping/flooring to handle outliers? (Y/N)
-    "transformationC": 'Y',  # Include transformed variables in evaluation (Y/N)
-    "impmethodO": 'mean',  # What method to use for missing imputation for ordinal variables?
-    "stdmethodO": 'No',  # Standardization options: any method allowed in proc stdize or NO to skip
-    "cap_flrO": 'N',  # Do you want to do capping/flooring to handle outliers? (Y/N)
-    "transformationO": 'N',  # Include transformed variables in evaluation? (Y/N)
-}
+
+
+
+
+
 
 
 
