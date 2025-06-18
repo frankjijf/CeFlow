@@ -9,6 +9,29 @@ from CE2_3_pnorm_nom_cntl import nom_cntl
 from CE2_4_pord_ord_cntl import ord_cntl
 from CE2_5_pcon_cont_cntl import cont_cntl
 
+
+# Define output directory and file paths
+output_dir = "D:/OneDrive/CE_PROJECT/Python_CE_Project_GH/SAS2PYTHON/"
+titanic_csv_path = os.path.join(output_dir, "Titanic-Dataset.csv")
+resampled_csv_path = os.path.join(output_dir, "CE1_Resampled_Titanic.csv")
+
+# Load Titanic dataset
+df_titanic = pd.read_csv(titanic_csv_path)
+
+# Run CE_Sampling on Titanic (no bootstrap)
+resampled_df, sample_rate_df = CE_Sampling(
+    df=df_titanic,
+    dep_var="Survived",
+    split_frac=0.7,
+    binary_dv=True,
+    bootstrap=False,
+    seed=654321,
+    path_output=output_dir,
+)
+
+resampled_df.to_csv(resampled_csv_path, index=False)
+
+
 # Example usage of the pnum, prof1, prof2, and prof3 functions
 # Load Titanic dataset
 df = pd.read_csv('D:/OneDrive/CE_PROJECT/Python_CE_Project_GH/SAS2PYTHON/Titanic-Dataset.csv')
@@ -182,3 +205,32 @@ print(profile_df)
 print("KEEP_LIST_C:", keep_c)
 # 查看生成的 Python 脚本：
 # /mnt/data/CE2_Continuous_Var_Recode.py
+
+
+# 假设 titanic 已经有 mod_val_test 列了
+# 示例数据路径为硬编码，如需复现请将数据集放在相对路径下或修改为自己的数据路径
+# 例如: df = pd.read_csv('./CE1_Resampled_Titanic.csv')
+df = pd.read_csv('D:/OneDrive/CE_PROJECT/Python_CE_Project_GH/SAS2PYTHON/CE1_Resampled_Titanic.csv')
+
+df['IsFemale'] = (df['Sex']=='female').astype(int)
+df['IsChild'] = (df['Age'] < 18).astype(int)
+
+# 定义各类变量列表
+bin_vars  = ['IsFemale','IsChild']
+nom_vars  = ['Embarked']
+ord_vars  = ['Pclass']
+cont_vars = ['Age','Fare']
+
+recoded_df, profile_df, var_lookup_df = CE_EDA_Recode(
+    insdn=df,
+    bin_vars=bin_vars,
+    nom_vars=nom_vars,
+    ord_vars=ord_vars,
+    cont_vars=cont_vars,
+    prefix='R1_',
+    dep_var='Survived',
+    minbinnc=500,
+    minbinnp=0.05,
+    profiling=True,
+    path_output='D:/OneDrive/CE_PROJECT/Python_CE_Project_GH/SAS2PYTHON/'
+)
