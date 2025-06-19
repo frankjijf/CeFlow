@@ -1,12 +1,12 @@
-2025-06-18 20:10:27,175 INFO: === Start CE_Sampling (outds=CE1_Resampled) ===
-2025-06-18 20:10:27,175 INFO: Excluding 1 rows
-2025-06-18 20:10:27,180 INFO: Split: model=628, test=263
-2025-06-18 20:10:27,180 WARNING: Low resp; use min_num_resp=2000
-2025-06-18 20:10:27,180 INFO: Bootstrap spsize=20000, rr=0.1
-2025-06-18 20:10:27,180 DEBUG: min_num_nonresp = 18000
-2025-06-18 20:10:27,180 DEBUG: Original responders: 247, non-responders: 381
-2025-06-18 20:10:27,193 DEBUG: Sampled total rows = 20000
-2025-06-18 20:10:27,195 INFO: Resampled model freq: {0.0: 18000, 1.0: 2000}
-2025-06-18 20:10:27,197 INFO: Marked 9929 rows as Validation
-2025-06-18 20:10:27,312 INFO: Wrote 20263 rows to CE1_Resampled.csv and sample-rate table
-2025-06-18 20:10:27,312 INFO: === End CE_Sampling (outds=CE1_Resampled) ===
+2025-06-18 21:47:16,399 INFO: === Start CE_Sampling (outds=CE1_Resampled) ===
+2025-06-18 21:47:16,399 INFO: Excluding 1 rows
+2025-06-18 21:47:16,401 INFO: Split: model=628, test=263
+2025-06-18 21:47:16,401 WARNING: Low resp; use min_num_resp=2000
+2025-06-18 21:47:16,403 INFO: Bootstrap spsize=20000, rr=0.1
+2025-06-18 21:47:16,403 DEBUG: min_num_nonresp = 18000
+2025-06-18 21:47:16,403 DEBUG: Original responders: 247, non-responders: 381
+2025-06-18 21:47:16,409 DEBUG: Sampled total rows = 20000
+2025-06-18 21:47:16,411 INFO: Resampled model freq: {0.0: 18000, 1.0: 2000}
+2025-06-18 21:47:16,415 INFO: Marked 9929 rows as Validation
+2025-06-18 21:47:16,509 INFO: Wrote 20263 rows to CE1_Resampled.csv and sample-rate table
+2025-06-18 21:47:16,509 INFO: === End CE_Sampling (outds=CE1_Resampled) ===

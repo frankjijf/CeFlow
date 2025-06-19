@@ -7,7 +7,6 @@ import glob
 import logging
 from typing import Optional
 
-
 def pnum(
     df: pd.DataFrame,
     var: str,
@@ -63,7 +62,7 @@ def pnum(
 
     # 4. Cap/floor
     df_nm = df[[dep_var, var]].dropna()
-    df_nm[var] = df_nm[var].clip(var_lb, var_ub)
+    df_nm.loc[:, var] = df_nm[var].clip(var_lb, var_ub)
 
     # 5. Transforms
     transforms = {}
@@ -76,7 +75,8 @@ def pnum(
         transforms[f"IV_{var}"] = -1 / np.maximum(df_nm[var], 1e-5)
         transforms[f"EP_{var}"] = -np.exp(np.minimum(-df_nm[var], 0))
     X = pd.DataFrame({var: df_nm[var], **transforms})
-    X = sm.add_constant(X)
+    if "const" not in X.columns:
+        X = sm.add_constant(X)
     y = df_nm[dep_var]
 
     # 6. ER method stdize (not needed here as SAS uses PROC STDIZE only for non-ER)
@@ -110,10 +110,13 @@ def pnum(
                 "Stat": stat,
                 "RSquare": res.rsquared,
             }
-
     # 8. Best transform
-    best_col, best = min(stats_map.items(), key=lambda x: x[1]["Prob"])
-    sign = "(+)" if best["Estimate"] > 0 else "(-)"
+    if stats_map:
+        best_col, best = min(stats_map.items(), key=lambda x: x[1]["Prob"])
+        sign = "(+)" if best["Estimate"] > 0 else "(-)"
+        pref = "" if best_col == var else best_col[:3]
+    else:
+        best_col, best, sign, pref = var, {"Estimate": 0, "Intercept": 0, "Prob": 1, "Stat": 0}, "", ""
     pref = "" if best_col == var else best_col[:3]
 
     # 9. ER impute
@@ -150,6 +153,11 @@ def pnum(
                 var_miss = -np.exp(min(0, -(mr - inter) / est))
             else:
                 var_miss = (mr - inter) / est
+    if var_miss is not None:
+        var_miss = min(max(var_miss, var_lb), var_ub)
+    else:
+        # Fallback: assign a safe default if variables are uninitialized
+        var_miss = var_median
     var_miss = min(max(var_miss, var_lb), var_ub)
 
     # 10. Update vars2
@@ -187,21 +195,27 @@ def pnum(
     }
     target = f"df['{prefix}{var}']"
     source = f"df['{var}']"
-
     with open(op, "a") as f:
         f.write(f"# --- Recode variable: {var} ---\n")
         # ① 缺失填补
-        f.write(f"{target} = {source}.fillna({var_miss})\n")
+        if isinstance(var_miss, str):
+            fillna_val = f"'{var_miss}'"
+        elif var_miss is None:
+            fillna_val = "np.nan"
+        else:
+            fillna_val = var_miss
+        f.write(f"{target} = {source}.fillna({fillna_val})\n")
         # ② Capping/Flooring
         if (typ.upper() == "C" and cap_flrC) or (typ.upper() == "O" and cap_flrO):
-            f.write(f"{target} = {target}.clip(lower={var_lb}, upper={var_ub})\n")
-        # ③ Label 属性（可选）
-        f.write(f"{target}.attrs['label'] = '{var}: Recode {sign}'\n")
+            transform_expr = py_map.get(pref, py_map[""])(target)
+            f.write(f"df['{best_col}'] = {transform_expr}\n")
+            f.write(f"df['{best_col}'].attrs['label'] = '{var} {pref} {sign}'\n")
         # ④ 最佳变换
         if pref:
             transform_expr = py_map[pref](target)
             f.write(f"df['{best_col}'] = {transform_expr}\n")
             f.write(f"df['{best_col}'].attrs['label'] = '{var} {pref} {sign}'\n")
+        f.write("\n")
         f.write("\n")
 
     return vars2
@@ -1042,6 +1056,10 @@ def CE_EDA_Recode(
     indsn: pd.DataFrame, config: dict, logger: Optional[logging.Logger] = None
 ):
 
+    if logger:
+        logger.info("*** 2. EDA, profiling and Recode ***")
+        logger.debug(f"Input dataset rows: {len(indsn)} columns: {indsn.columns.tolist()}")
+    
     # Variable Lists
     binvar = config["binvar"]
     nomvar = config["nomvar"]
@@ -1084,7 +1102,16 @@ def CE_EDA_Recode(
     transformationO = config.get("transformationO", "N").upper() == "Y"
 
     # 1. Build workfile (exclude mod_val_test==3)
-    workfile = pd.DataFrame(indsn.loc[indsn.get("mod_val_test", 0) != 3].copy())
+    mask_val = indsn.get("mod_val_test", 0) == 3
+    if isinstance(mask_val, (pd.Series, np.ndarray)):
+        n_val = mask_val.sum()
+    else:
+        n_val = int(mask_val)
+    workfile = indsn.loc[mask_val == False].copy()
+
+    if logger:
+        logger.info(f"Excluded Validation rows: {n_val}")
+        logger.debug(f"Rows after exclusion: {len(workfile)}")
 
     # 2. Global stats
     nobs = len(workfile)

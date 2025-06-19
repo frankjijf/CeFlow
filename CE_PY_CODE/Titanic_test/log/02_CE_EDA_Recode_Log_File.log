@@ -1,20 +1,22 @@
-d:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\CE2_1_pnum_prof123.py:123: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value 'Pclass' has dtype incompatible with float64, please explicitly cast to a compatible dtype first.
-  vars2.loc[cond,['new_var','Sign','Relationship']]=[best_col,sign,pref+sign]
-d:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\CE2_1_pnum_prof123.py:123: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '(-)' has dtype incompatible with float64, please explicitly cast to a compatible dtype first.
-  vars2.loc[cond,['new_var','Sign','Relationship']]=[best_col,sign,pref+sign]
-d:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\CE2_1_pnum_prof123.py:123: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '(-)' has dtype incompatible with float64, please explicitly cast to a compatible dtype first.
-  vars2.loc[cond,['new_var','Sign','Relationship']]=[best_col,sign,pref+sign]
-d:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\CE2_1_pnum_prof123.py:123: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value 'IV_Age' has dtype incompatible with float64, please explicitly cast to a compatible dtype first.
-  vars2.loc[cond,['new_var','Sign','Relationship']]=[best_col,sign,pref+sign]
-d:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\CE2_1_pnum_prof123.py:123: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '(-)' has dtype incompatible with float64, please explicitly cast to a compatible dtype first.
-  vars2.loc[cond,['new_var','Sign','Relationship']]=[best_col,sign,pref+sign]
-d:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\CE2_1_pnum_prof123.py:123: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value 'IV_(-)' has dtype incompatible with float64, please explicitly cast to a compatible dtype first.
-  vars2.loc[cond,['new_var','Sign','Relationship']]=[best_col,sign,pref+sign]
-d:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\CE2_6_CE_EDA_Recode.py:205: FutureWarning: Starting with pandas version 3.0 all arguments of to_excel except for the argument 'excel_writer' will be keyword-only.
-  if keep_B: pd.DataFrame(vars2_bin).assign(new_var=pd.Series(keep_B)).to_excel(writer, 'Binary', index=False)
-d:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\CE2_6_CE_EDA_Recode.py:206: FutureWarning: Starting with pandas version 3.0 all arguments of to_excel except for the argument 'excel_writer' will be keyword-only.
-  if keep_N: pd.DataFrame(vars2_nom).assign(new_var=pd.Series(keep_N)).to_excel(writer, 'Nominal', index=False)
-d:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\CE2_6_CE_EDA_Recode.py:207: FutureWarning: Starting with pandas version 3.0 all arguments of to_excel except for the argument 'excel_writer' will be keyword-only.
-  if keep_O: pd.DataFrame(vars2_ord).assign(new_var=pd.Series(keep_O)).to_excel(writer, 'Ordinal', index=False)
-d:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\CE2_6_CE_EDA_Recode.py:208: FutureWarning: Starting with pandas version 3.0 all arguments of to_excel except for the argument 'excel_writer' will be keyword-only.
-  if keep_C: pd.DataFrame(vars2_cont).assign(new_var=pd.Series(keep_C)).to_excel(writer, 'Continuous', index=False)
+2025-06-18 21:47:16,514 INFO: *** 2. EDA, profiling and Recode ***
+2025-06-18 21:47:16,514 DEBUG: Input dataset rows: 20263 columns: ['PassengerId', 'Survived', 'Pclass', 'Name', 'Sex', 'Age', 'SibSp', 'Parch', 'Ticket', 'Fare', 'Cabin', 'Embarked', 'Cabin2', 'IsFemale', 'IsChild', 'mod_val_test']
+d:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\CE2_EDA_Recode.py:176: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value 'Pclass' has dtype incompatible with float64, please explicitly cast to a compatible dtype first.
+  vars2.loc[cond, ["new_var", "Sign", "Relationship"]] = [
+d:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\CE2_EDA_Recode.py:176: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '(-)' has dtype incompatible with float64, please explicitly cast to a compatible dtype first.
+  vars2.loc[cond, ["new_var", "Sign", "Relationship"]] = [
+d:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\CE2_EDA_Recode.py:176: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '(-)' has dtype incompatible with float64, please explicitly cast to a compatible dtype first.
+  vars2.loc[cond, ["new_var", "Sign", "Relationship"]] = [
+d:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\CE2_EDA_Recode.py:176: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value 'IV_Age' has dtype incompatible with float64, please explicitly cast to a compatible dtype first.
+  vars2.loc[cond, ["new_var", "Sign", "Relationship"]] = [
+d:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\CE2_EDA_Recode.py:176: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '(-)' has dtype incompatible with float64, please explicitly cast to a compatible dtype first.
+  vars2.loc[cond, ["new_var", "Sign", "Relationship"]] = [
+d:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\CE2_EDA_Recode.py:176: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value 'IV_(-)' has dtype incompatible with float64, please explicitly cast to a compatible dtype first.
+  vars2.loc[cond, ["new_var", "Sign", "Relationship"]] = [
+d:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\CE2_EDA_Recode.py:1247: FutureWarning: Starting with pandas version 3.0 all arguments of to_excel except for the argument 'excel_writer' will be keyword-only.
+  pd.DataFrame(vars2_bin).assign(new_var=pd.Series(keep_B)).to_excel(
+d:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\CE2_EDA_Recode.py:1251: FutureWarning: Starting with pandas version 3.0 all arguments of to_excel except for the argument 'excel_writer' will be keyword-only.
+  pd.DataFrame(vars2_nom).assign(new_var=pd.Series(keep_N)).to_excel(
+d:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\CE2_EDA_Recode.py:1255: FutureWarning: Starting with pandas version 3.0 all arguments of to_excel except for the argument 'excel_writer' will be keyword-only.
+  pd.DataFrame(vars2_ord).assign(new_var=pd.Series(keep_O)).to_excel(
+d:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\CE2_EDA_Recode.py:1259: FutureWarning: Starting with pandas version 3.0 all arguments of to_excel except for the argument 'excel_writer' will be keyword-only.
+  pd.DataFrame(vars2_cont).assign(new_var=pd.Series(keep_C)).to_excel(
