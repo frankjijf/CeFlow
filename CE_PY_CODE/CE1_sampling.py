@@ -96,13 +96,13 @@ def CE_Sampling(
     id = config["id"]
     dep_var = config["dep_var"]
     binary_dv = config["binary_dv"].upper() == "Y"
-    weight = config["dep_var"]
+    weight = config["weight"]
     # Macro 1: Sampling macro variables
     split_portion = config["split_portion"]
     exclusion_if = config["exclusion_if"]
     DS_present = (
         config["DS_present"].upper() == "Y"
-    )  # Optional Macro Variables: These all have defaults that can be used
+    )
     # Optional Macro Variables: These all have defaults that can be used
     # General Macro Variables
     prefix = config.get("prefix", "R1_")
