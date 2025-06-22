@@ -100,7 +100,7 @@ def pnum(
         X = sm.add_constant(X)
     y = df_nm[dep_var]
 
-    # 6. ER method stdize (not needed here as SAS uses PROC STDIZE only for non-ER)
+    # 6. ER method stdize (in the future will update PROC STDIZE method for non-ER)
     # if skip = 0 THEN ABW, AHUBER, AWAVE, AGK, SPACING, L, and IN, TO BE UPDATED
 
     # 7. Univariate regression

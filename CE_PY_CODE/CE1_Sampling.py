@@ -155,7 +155,7 @@ def CE_Sampling(
     outds = pd.concat([mod, test], ignore_index=True)
     rng2 = np.random.RandomState(seed + 1 if seed is not None else None)
     idx_mod = outds[outds["mod_val_test"] == 1].index
-    # SAS 按 50% ranuni 随机分配 Val
+    # 按 50% ranuni 随机分配 Val
     val_mask = rng2.rand(len(idx_mod)) > 0.5
     val_idx = idx_mod[val_mask]
     outds.loc[val_idx, "mod_val_test"] = 2

@@ -40,7 +40,7 @@ lst_path_02 = os.path.join(log_dir, "02_CE_EDA_Recode_LST_File.lst")
 # Load the dataset
 inds = pd.read_csv(
     os.path.join(lib_dir, "Titanic-Dataset.csv")
-)  # Your SAS input dataset name (assuming CSV)
+)  # Your input dataset name (assuming CSV)
 inds["IsFemale"] = (inds["Sex"] == "female").astype(int)
 inds["IsChild"] = (inds["Age"] < 18).astype(int)
 
