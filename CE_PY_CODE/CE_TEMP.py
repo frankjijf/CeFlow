@@ -5,6 +5,57 @@
 
 
 
+    lookup = []
+    for v in all_new:
+        lbl = v
+        if not vars2_bin.empty and v in getattr(vars2_bin, "name", []):
+        elif not vars2_nom.empty and v in getattr(vars2_nom, "name", []):
+        elif not vars2_ord.empty and v in getattr(vars2_ord, "name", []):
+        elif (
+            not vars2_cont.empty
+            and hasattr(vars2_cont, "name")
+            and v in vars2_cont["name"].values
+        ):
+    lookup.append((v, lbl, v, lbl))
+    var_lookup_df = pd.DataFrame(
+        lookup, columns=["variable", "label", "orig_var", "orig_label"]
+    )
+
+    # 10. Correlation and Excel report
+    if dep_var in CE2_Recoded.columns and pd.api.types.is_numeric_dtype(
+        CE2_Recoded[dep_var]
+    ):
+        corr = (
+            CE2_Recoded.corr()[dep_var].drop(dep_var).abs().sort_values(ascending=False)
+        )
+        corr_df = corr.reset_index().rename(
+            columns={"index": "variable", dep_var: "correlation"}
+        )
+    else:
+        corr_df = pd.DataFrame(columns=["variable", "correlation"])
+
+    writer = pd.ExcelWriter(
+        os.path.join(path_output, "CE2_EDA_report.xlsx"), engine="xlsxwriter"
+    )
+    if keep_B:
+        pd.DataFrame(vars2_bin).assign(new_var=pd.Series(keep_B)).to_excel(
+            writer, "Binary", index=False
+        )
+    if keep_N:
+        pd.DataFrame(vars2_nom).assign(new_var=pd.Series(keep_N)).to_excel(
+            writer, "Nominal", index=False
+        )
+    if keep_O:
+        pd.DataFrame(vars2_ord).assign(new_var=pd.Series(keep_O)).to_excel(
+            writer, "Ordinal", index=False
+        )
+    if keep_C:
+        pd.DataFrame(vars2_cont).assign(new_var=pd.Series(keep_C)).to_excel(
+            writer, "Continuous", index=False
+        )
+    writer.close()
+
+
 
 
 

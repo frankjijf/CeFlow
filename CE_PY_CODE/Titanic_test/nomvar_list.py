@@ -1,6 +1,6 @@
 def nomvar_list():
-    nomvar = [
+    nom_vars = [
     "Embarked",
     "Cabin2"
     ]
-    return nomvar
+    return nom_vars

@@ -1,6 +1,6 @@
 def ordvar_list():
-    ordvar = [
+    ord_vars = [
     "Pclass",
     "Parch"
     ]
-    return ordvar
+    return ord_vars

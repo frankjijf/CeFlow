@@ -1,22 +1,116 @@
-2025-06-18 21:47:16,514 INFO: *** 2. EDA, profiling and Recode ***
-2025-06-18 21:47:16,514 DEBUG: Input dataset rows: 20263 columns: ['PassengerId', 'Survived', 'Pclass', 'Name', 'Sex', 'Age', 'SibSp', 'Parch', 'Ticket', 'Fare', 'Cabin', 'Embarked', 'Cabin2', 'IsFemale', 'IsChild', 'mod_val_test']
-d:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\CE2_EDA_Recode.py:176: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value 'Pclass' has dtype incompatible with float64, please explicitly cast to a compatible dtype first.
-  vars2.loc[cond, ["new_var", "Sign", "Relationship"]] = [
-d:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\CE2_EDA_Recode.py:176: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '(-)' has dtype incompatible with float64, please explicitly cast to a compatible dtype first.
-  vars2.loc[cond, ["new_var", "Sign", "Relationship"]] = [
-d:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\CE2_EDA_Recode.py:176: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '(-)' has dtype incompatible with float64, please explicitly cast to a compatible dtype first.
-  vars2.loc[cond, ["new_var", "Sign", "Relationship"]] = [
-d:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\CE2_EDA_Recode.py:176: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value 'IV_Age' has dtype incompatible with float64, please explicitly cast to a compatible dtype first.
-  vars2.loc[cond, ["new_var", "Sign", "Relationship"]] = [
-d:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\CE2_EDA_Recode.py:176: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value '(-)' has dtype incompatible with float64, please explicitly cast to a compatible dtype first.
-  vars2.loc[cond, ["new_var", "Sign", "Relationship"]] = [
-d:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\CE2_EDA_Recode.py:176: FutureWarning: Setting an item of incompatible dtype is deprecated and will raise an error in a future version of pandas. Value 'IV_(-)' has dtype incompatible with float64, please explicitly cast to a compatible dtype first.
-  vars2.loc[cond, ["new_var", "Sign", "Relationship"]] = [
-d:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\CE2_EDA_Recode.py:1247: FutureWarning: Starting with pandas version 3.0 all arguments of to_excel except for the argument 'excel_writer' will be keyword-only.
-  pd.DataFrame(vars2_bin).assign(new_var=pd.Series(keep_B)).to_excel(
-d:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\CE2_EDA_Recode.py:1251: FutureWarning: Starting with pandas version 3.0 all arguments of to_excel except for the argument 'excel_writer' will be keyword-only.
-  pd.DataFrame(vars2_nom).assign(new_var=pd.Series(keep_N)).to_excel(
-d:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\CE2_EDA_Recode.py:1255: FutureWarning: Starting with pandas version 3.0 all arguments of to_excel except for the argument 'excel_writer' will be keyword-only.
-  pd.DataFrame(vars2_ord).assign(new_var=pd.Series(keep_O)).to_excel(
-d:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\CE2_EDA_Recode.py:1259: FutureWarning: Starting with pandas version 3.0 all arguments of to_excel except for the argument 'excel_writer' will be keyword-only.
-  pd.DataFrame(vars2_cont).assign(new_var=pd.Series(keep_C)).to_excel(
+2025-06-22 17:38:24,176 INFO: *** 2. EDA, profiling and Recode ***
+2025-06-22 17:38:24,176 DEBUG: Input dataset rows: 20263 columns: ['PassengerId', 'Survived', 'Pclass', 'Name', 'Sex', 'Age', 'SibSp', 'Parch', 'Ticket', 'Fare', 'Cabin', 'Embarked', 'Cabin2', 'IsFemale', 'IsChild', 'mod_val_test']
+2025-06-22 17:38:24,182 INFO: Excluded Validation rows: 263
+2025-06-22 17:38:24,182 DEBUG: Rows after exclusion: 20000
+2025-06-22 17:38:24,182 INFO: bin_cntl start, number of binary variables = 2
+2025-06-22 17:38:24,182 DEBUG: bin_cntl start, number of binary variables = 2
+2025-06-22 17:38:24,182 INFO: Processing binary variable: IsFemale, type: numeric in pbin
+2025-06-22 17:38:24,182 DEBUG: Processing binary variable: IsFemale, type: numeric in pbin
+2025-06-22 17:38:24,182 INFO: Processing binary variable: IsFemale, type: numeric, miss_ok: True, cnt_ck: 3901, concrate_good: True
+2025-06-22 17:38:24,182 DEBUG: Processing binary variable: IsFemale, type: numeric, miss_ok: True, cnt_ck: 3901, concrate_good: True
+2025-06-22 17:38:24,182 INFO: Recode for variable IsFemale written to D:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\Titanic_test\ce_output\CE2_Binary_Var_Recode.py
+2025-06-22 17:38:24,182 DEBUG: Recode for variable IsFemale written to D:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\Titanic_test\ce_output\CE2_Binary_Var_Recode.py
+2025-06-22 17:38:24,182 INFO: Updated vars2_bin for IsFemale: miss_cnt=0, ones_cnt=3901, overall_good=1
+2025-06-22 17:38:24,182 DEBUG: Updated vars2_bin for IsFemale: miss_cnt=0, ones_cnt=3901, overall_good=1
+2025-06-22 17:38:24,196 INFO: Profiling for variable IsFemale completed.
+2025-06-22 17:38:24,196 DEBUG: Profiling for variable IsFemale completed.
+2025-06-22 17:38:24,196 INFO: Processed variable: IsFemale, overall_good=1.0
+2025-06-22 17:38:24,196 DEBUG: Processed variable: IsFemale, overall_good=1.0
+2025-06-22 17:38:24,196 INFO: Processing binary variable: IsChild, type: numeric in pbin
+2025-06-22 17:38:24,196 DEBUG: Processing binary variable: IsChild, type: numeric in pbin
+2025-06-22 17:38:24,196 INFO: Processing binary variable: IsChild, type: numeric, miss_ok: True, cnt_ck: 2072, concrate_good: True
+2025-06-22 17:38:24,196 DEBUG: Processing binary variable: IsChild, type: numeric, miss_ok: True, cnt_ck: 2072, concrate_good: True
+2025-06-22 17:38:24,200 INFO: Recode for variable IsChild written to D:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\Titanic_test\ce_output\CE2_Binary_Var_Recode.py
+2025-06-22 17:38:24,200 DEBUG: Recode for variable IsChild written to D:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\Titanic_test\ce_output\CE2_Binary_Var_Recode.py
+2025-06-22 17:38:24,200 INFO: Updated vars2_bin for IsChild: miss_cnt=0, ones_cnt=2072, overall_good=1
+2025-06-22 17:38:24,200 DEBUG: Updated vars2_bin for IsChild: miss_cnt=0, ones_cnt=2072, overall_good=1
+2025-06-22 17:38:24,200 INFO: Profiling for variable IsChild completed.
+2025-06-22 17:38:24,200 DEBUG: Profiling for variable IsChild completed.
+2025-06-22 17:38:24,200 INFO: Processed variable: IsChild, overall_good=1.0
+2025-06-22 17:38:24,200 DEBUG: Processed variable: IsChild, overall_good=1.0
+2025-06-22 17:38:24,200 INFO: bin_cntl end, number of new binary variables = 2
+2025-06-22 17:38:24,200 DEBUG: bin_cntl end, number of new binary variables = 2
+2025-06-22 17:38:24,200 INFO: Binary variables processed: 2
+2025-06-22 17:38:24,208 DEBUG: Binary variables processed: 2
+2025-06-22 17:38:24,208 INFO: nom_cntl_start, number of nominal variables = 2
+2025-06-22 17:38:24,208 DEBUG: nom_cntl_start, number of nominal variables = 2
+2025-06-22 17:38:24,208 INFO: Processing nominal variable pnom: Embarked, type: str
+2025-06-22 17:38:24,208 DEBUG: Processing nominal variable pnom: Embarked, type: str
+2025-06-22 17:38:24,234 INFO: Recode for variable Embarked written to D:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\Titanic_test\ce_output\CE2_Nominal_Var_Recode.py
+2025-06-22 17:38:24,234 DEBUG: Recode for variable Embarked written to D:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\Titanic_test\ce_output\CE2_Nominal_Var_Recode.py
+2025-06-22 17:38:24,236 INFO: Updated vars2_nom for Embarked: uniq_cnt=4, miss_cnt=17, max_cnt=15597
+2025-06-22 17:38:24,236 DEBUG: Updated vars2_nom for Embarked: uniq_cnt=4, miss_cnt=17, max_cnt=15597
+2025-06-22 17:38:24,247 INFO: Profiling for variable Embarked completed.
+2025-06-22 17:38:24,247 DEBUG: Profiling for variable Embarked completed.
+2025-06-22 17:38:24,247 INFO: Processed variable: Embarked, overall_good=1.0
+2025-06-22 17:38:24,247 DEBUG: Processed variable: Embarked, overall_good=1.0
+2025-06-22 17:38:24,247 INFO: Processing nominal variable pnom: Cabin2, type: str
+2025-06-22 17:38:24,247 DEBUG: Processing nominal variable pnom: Cabin2, type: str
+2025-06-22 17:38:24,254 WARNING: Variable Cabin2 missing count is 16867, which is too high
+2025-06-22 17:38:24,254 DEBUG: Variable Cabin2 missing count is 16867, which is too high
+2025-06-22 17:38:24,256 INFO: Processed variable: Cabin2, overall_good=nan
+2025-06-22 17:38:24,256 DEBUG: Processed variable: Cabin2, overall_good=nan
+2025-06-22 17:38:24,258 INFO: nom_cntl end, number of new nominal variables = 1
+2025-06-22 17:38:24,258 DEBUG: nom_cntl end, number of new nominal variables = 1
+2025-06-22 17:38:24,258 INFO: Nominal variables processed: 2
+2025-06-22 17:38:24,258 DEBUG: Nominal variables processed: 2
+2025-06-22 17:38:24,258 INFO: ord_cntl start, number of ordinal variables = 2
+2025-06-22 17:38:24,258 DEBUG: ord_cntl start, number of ordinal variables = 2
+2025-06-22 17:38:24,264 INFO: Processing ordinal variable: Pclass in pord
+2025-06-22 17:38:24,264 DEBUG: Processing ordinal variable: Pclass in pord
+2025-06-22 17:38:24,264 INFO: Processing numeric ordinal variable: Pclass in pnum
+2025-06-22 17:38:24,264 DEBUG: Processing numeric ordinal variable: Pclass in pnum
+2025-06-22 17:38:24,362 INFO: Recode for variable Pclass written to D:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\Titanic_test\ce_output\CE2_Ordinal_Var_Recode.py
+2025-06-22 17:38:24,362 DEBUG: Recode for variable Pclass written to D:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\Titanic_test\ce_output\CE2_Ordinal_Var_Recode.py
+2025-06-22 17:38:24,364 INFO: Updated vars2_ord for Pclass
+2025-06-22 17:38:24,364 DEBUG: Updated vars2_ord for Pclass
+2025-06-22 17:38:24,369 INFO: Profiling for ordinal variable Pclass completed.
+2025-06-22 17:38:24,371 DEBUG: Profiling for ordinal variable Pclass completed.
+2025-06-22 17:38:24,371 INFO: Processed variable: Pclass, overall_good=1.0
+2025-06-22 17:38:24,371 DEBUG: Processed variable: Pclass, overall_good=1.0
+2025-06-22 17:38:24,373 INFO: Processing ordinal variable: Parch in pord
+2025-06-22 17:38:24,373 DEBUG: Processing ordinal variable: Parch in pord
+2025-06-22 17:38:24,376 INFO: Processing numeric ordinal variable: Parch in pnum
+2025-06-22 17:38:24,376 DEBUG: Processing numeric ordinal variable: Parch in pnum
+2025-06-22 17:38:24,422 INFO: Recode for variable Parch written to D:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\Titanic_test\ce_output\CE2_Ordinal_Var_Recode.py
+2025-06-22 17:38:24,422 DEBUG: Recode for variable Parch written to D:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\Titanic_test\ce_output\CE2_Ordinal_Var_Recode.py
+2025-06-22 17:38:24,424 INFO: Updated vars2_ord for Parch
+2025-06-22 17:38:24,424 DEBUG: Updated vars2_ord for Parch
+2025-06-22 17:38:24,429 INFO: Profiling for ordinal variable Parch completed.
+2025-06-22 17:38:24,429 DEBUG: Profiling for ordinal variable Parch completed.
+2025-06-22 17:38:24,430 INFO: Processed variable: Parch, overall_good=1.0
+2025-06-22 17:38:24,430 DEBUG: Processed variable: Parch, overall_good=1.0
+2025-06-22 17:38:24,432 INFO: ord_cntl end, number of new ordinal variables = 2
+2025-06-22 17:38:24,432 DEBUG: ord_cntl end, number of new ordinal variables = 2
+2025-06-22 17:38:24,432 INFO: Ordinal variables processed: 2
+2025-06-22 17:38:24,432 DEBUG: Ordinal variables processed: 2
+2025-06-22 17:38:24,432 INFO: cont_cntl start, number of continuous variables = 2
+2025-06-22 17:38:24,432 DEBUG: cont_cntl start, number of continuous variables = 2
+2025-06-22 17:38:24,438 INFO: Processing continuous variable: Age in pcont
+2025-06-22 17:38:24,438 DEBUG: Processing continuous variable: Age in pcont
+2025-06-22 17:38:24,438 INFO: Processing numeric continuous variable: Age in pnum
+2025-06-22 17:38:24,438 DEBUG: Processing numeric continuous variable: Age in pnum
+2025-06-22 17:38:24,576 INFO: Recode for variable Age written to D:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\Titanic_test\ce_output\CE2_Continuous_Var_Recode.py
+2025-06-22 17:38:24,576 DEBUG: Recode for variable Age written to D:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\Titanic_test\ce_output\CE2_Continuous_Var_Recode.py
+2025-06-22 17:38:24,578 INFO: Updated vars2_cont for Age
+2025-06-22 17:38:24,579 DEBUG: Updated vars2_cont for Age
+2025-06-22 17:38:24,589 INFO: Profiling for continuous variable Age completed.
+2025-06-22 17:38:24,589 DEBUG: Profiling for continuous variable Age completed.
+2025-06-22 17:38:24,589 INFO: Processed variable: Age, overall_good=1.0
+2025-06-22 17:38:24,591 DEBUG: Processed variable: Age, overall_good=1.0
+2025-06-22 17:38:24,593 INFO: Processing continuous variable: Fare in pcont
+2025-06-22 17:38:24,593 DEBUG: Processing continuous variable: Fare in pcont
+2025-06-22 17:38:24,593 INFO: Processing numeric continuous variable: Fare in pnum
+2025-06-22 17:38:24,593 DEBUG: Processing numeric continuous variable: Fare in pnum
+2025-06-22 17:38:24,763 INFO: Recode for variable Fare written to D:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\Titanic_test\ce_output\CE2_Continuous_Var_Recode.py
+2025-06-22 17:38:24,763 DEBUG: Recode for variable Fare written to D:\OneDrive\CE_PROJECT\Python_CE_Project_GH\SAS2PYTHON\CE_PY_CODE\Titanic_test\ce_output\CE2_Continuous_Var_Recode.py
+2025-06-22 17:38:24,765 INFO: Updated vars2_cont for Fare
+2025-06-22 17:38:24,765 DEBUG: Updated vars2_cont for Fare
+2025-06-22 17:38:24,775 INFO: Profiling for continuous variable Fare completed.
+2025-06-22 17:38:24,775 DEBUG: Profiling for continuous variable Fare completed.
+2025-06-22 17:38:24,777 INFO: Processed variable: Fare, overall_good=1.0
+2025-06-22 17:38:24,777 DEBUG: Processed variable: Fare, overall_good=1.0
+2025-06-22 17:38:24,779 INFO: cont_cntl end, number of new continuous variables = 2
+2025-06-22 17:38:24,779 DEBUG: cont_cntl end, number of new continuous variables = 2
+2025-06-22 17:38:24,779 INFO: Continuous variables processed: 2
+2025-06-22 17:38:24,779 DEBUG: Continuous variables processed: 2

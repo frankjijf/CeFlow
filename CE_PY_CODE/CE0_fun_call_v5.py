@@ -47,10 +47,10 @@ inds["IsChild"] = (inds["Age"] < 18).astype(int)
 # Mandatory Macro Variables: These must be set
 config = {
     # Variable Lists
-    "contvar": contvar_list.contvar_list(),  # Your continuous variable list
-    "nomvar": nomvar_list.nomvar_list(),  # Your nominal variable list
-    "binvar": binvar_list.binvar_list(),  # Your binary variable list
-    "ordvar": ordvar_list.ordvar_list(),  # Your ordinal variable list
+    "cont_vars": contvar_list.contvar_list(),  # Your continuous variable list
+    "nom_vars": nomvar_list.nomvar_list(),  # Your nominal variable list
+    "bin_vars": binvar_list.binvar_list(),  # Your binary variable list
+    "ord_vars": ordvar_list.ordvar_list(),  # Your ordinal variable list
     # General Macro Variables
     "path_output": out_dir,  # your output destination folder
     "inds": inds,  # your input dataset name
@@ -105,7 +105,7 @@ config = {
 with printto(log=log_path_01, lst=lst_path_01) as logger:
     CE1_Resampled, CE1_Sample_Rate = CE_Sampling(config=config, logger=logger)
 
-with printto(log=log_path_02, lst=log_path_02) as logger:
-    CE2_Recoded, profile_df, var_lookup_df = CE_EDA_Recode(
+with printto(log=log_path_02, lst=lst_path_02) as logger:
+    CE2_Recoded, profile_df = CE_EDA_Recode(
         indsn=CE1_Resampled, config=config, logger=logger
     )

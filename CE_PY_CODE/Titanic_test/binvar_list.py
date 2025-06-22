@@ -1,6 +1,6 @@
 def binvar_list():
-    binvar = [
+    bin_vars = [
     "IsFemale",
     "IsChild"
     ]
-    return binvar
+    return bin_vars

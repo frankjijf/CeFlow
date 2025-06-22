@@ -19,24 +19,28 @@ def pnum(
 ) -> pd.DataFrame:
 
     dep_var = config['dep_var']
-    binary_dv = config['binary_dv']
     path_output = config['path_output']
-    prefix = config['prefix']
-    missrate = config['missrate']
-    impmethodC = config['impmethodC']
-    impmethodO = config['impmethodO']
-    stdmethodC = config['stdmethodC']
-    stdmethodO = config['stdmethodO']
-    cap_flrC = config['cap_flrC']
-    cap_flrO = config['cap_flrO']
-    transformationC = config['transformationC']
-    transformationO = config['transformationO']
-    pvalue = config['pvalue']
-    min_size = config['min_size']
-
+    binary_dv = config['binary_dv'].upper() == 'Y'
+    prefix = config.get("prefix", "R1_")
+    impmethodC = config.get('impmethodC','median')
+    impmethodO = config.get('impmethodO','mean')
+    # stdmethodC = config.get('stdmethodC','STD')
+    # stdmethodO = config.get('stdmethodO','No')
+    # cap_flrC = config.get('cap_flrC','Y').upper() == 'Y'
+    cap_flrO = config.get('cap_flrO','N').upper() == 'Y'
+    transformationC = config.get('transformationC','Y').upper() == 'Y'
+    transformationO = config.get('transformationO','N').upper() == 'Y'
+    pvalue = config.get('pvalue', 0.05)
+    min_size = config.get('min_size', 500)
+    
+    var_type=''
+    if typ.upper()=='O':
+        var_type='ordinal'
+    if typ.upper()=='C':
+        var_type='continuous'
     if logger:
-        logger.info(f"Processing numeric variable pnum: {var}, type: {typ}")
-        logger.debug(f"Processing numeric variable pnum: {var}, type: {typ}")
+        logger.info(f"Processing numeric {var_type} variable: {var} in pnum")
+        logger.debug(f"Processing numeric {var_type} variable: {var} in pnum")
 
     # 1. Summary
     s = df[var].dropna()
@@ -191,23 +195,32 @@ def pnum(
         var_miss = min(max(var_miss, var_lb), var_ub)
 
     # 10. Update vars2
+    target_cols = ["Chisq", "PValue", "FValue", "new_var", "Sign", "Relationship"]
+
+    for col in target_cols:
+        if col in vars2.columns:
+            # 已存在就只改 dtype，不动原值
+            vars2[col] = vars2[col].astype("string")
+        else:
+            # 不存在就新建一整列，值全设为 pd.NA，并用 StringDtype
+            vars2[col] = pd.Series(pd.NA, index=vars2.index, dtype="string")
+
     cond = vars2["name"] == var
-    vars2.loc[cond, ["var_lb", "var_ub", "var_median", "miss_impute"]] = [
-        var_lb,
-        var_ub,
-        var_median,
-        var_miss,
-    ]
+    vars2.loc[cond, "var_lb"] = var_lb
+    vars2.loc[cond, "var_ub"] = var_ub
+    vars2.loc[cond, "var_median"] = var_median
+    vars2.loc[cond, "miss_impute"] = var_miss
+
     if binary_dv:
-        vars2.loc[cond, ["Chisq", "PValue"]] = [best["Stat"], best["Prob"]]
+        vars2.loc[cond, "Chisq"] = str(best["Stat"])
+        vars2.loc[cond, "PValue"] = str(best["Prob"])
     else:
-        vars2.loc[cond, ["FValue", "PValue"]] = [best["Stat"], best["Prob"]]
+        vars2.loc[cond, "FValue"] = str(best["Stat"])
+        vars2.loc[cond, "PValue"] = str(best["Prob"])
     if best["Prob"] <= pvalue:
-        vars2.loc[cond, ["new_var", "Sign", "Relationship"]] = [
-            best_col,
-            sign,
-            pref + sign,
-        ]
+        vars2.loc[cond, "new_var"] = str(best_col)
+        vars2.loc[cond, "Sign"] = str(sign)
+        vars2.loc[cond, "Relationship"] = str(pref + sign)
 
     # 11. Write Python recode
     os.makedirs(path_output, exist_ok=True)
@@ -242,6 +255,9 @@ def pnum(
             }[pref]
             f.write(f"df['{new_col}'] = {expr}\n")
         f.write("\n")
+        if logger:
+            logger.info(f"Recode for variable {var} written to {recode_py}")
+            logger.debug(f"Recode for variable {var} written to {recode_py}")
 
     return vars2
 
@@ -269,8 +285,8 @@ def prof2(
 ) -> pd.DataFrame:
 
     dep_var = config['dep_var']
-    num_category = config['num_category']
-    equal_dist = config['equal_dist']
+    num_category = config.get('num_category',10)
+    equal_dist = config.get('equal_dist','N') == 'Y'
     tmp = df[[dep_var, var]].copy()
     if equal_dist:
         lo = df[var].quantile(0.01)
@@ -385,14 +401,14 @@ def pbin(
 
     dep_var = config['dep_var']
     path_output = config['path_output']
-    prefix = config['prefix']
-    missrate = config['missrate']
-    concrate = config['concrate']
-    profiling = config['profiling']
+    prefix = config.get("prefix", "R1_")
+    missrate = config.get('missrate',0.75)
+    concrate = config.get('concrate',0.9)
+    profiling = config.get("profiling", "Y") == 'Y'
 
     if logger:
-        logger.info(f"Processing binary variable pbin: {var}, type: {typ}")
-        logger.debug(f"Processing binary variable pbin: {var}, type: {typ}")
+        logger.info(f"Processing binary variable: {var}, type: {typ} in pbin")
+        logger.debug(f"Processing binary variable: {var}, type: {typ} in pbin")
     prof_bin = pd.DataFrame()
     miss_cnt = df[var].isna().sum()
     miss_ok = (nobs * missrate) >= miss_cnt
@@ -424,15 +440,15 @@ def pbin(
                         f".astype(int)"
                     )
                 f.write(f"df['{prefix}{var}'] = {recode_expr}\n")
-
+            if logger:
+                logger.info(f"Recode for variable {var} written to {recode_py}")
+                logger.debug(f"Recode for variable {var} written to {recode_py}")
             # update vars2_bin
             cond = vars2_bin["name"] == var
             vars2_bin.loc[cond, ["miss_cnt", "ones_cnt", "overall_good"]] = [miss_cnt, cnt_ck, int(miss_ok and concrate_good)]
             if logger:
                 logger.info(f"Updated vars2_bin for {var}: miss_cnt={miss_cnt}, ones_cnt={cnt_ck}, overall_good={int(miss_ok and concrate_good)}")
                 logger.debug(f"Updated vars2_bin for {var}: miss_cnt={miss_cnt}, ones_cnt={cnt_ck}, overall_good={int(miss_ok and concrate_good)}")
-                logger.info(f"Recode for variable {var} written to {recode_py}")
-                logger.debug(f"Recode for variable {var} written to {recode_py}")
             # Profiling
             if profiling:
                 tmp = df[[dep_var, var]].copy()
@@ -515,10 +531,10 @@ def bin_cntl(
     typ_map: dict,
     config: dict,
     logger: Optional[logging.Logger] = None
-) -> Tuple[pd.DataFrame, pd.DataFrame, list]: 
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
     path_output = config['path_output']
-    prefix = config['prefix']
+    prefix = config.get("prefix", "R1_")
     dep_var = config['dep_var']
     
     if logger:
@@ -535,8 +551,7 @@ def bin_cntl(
     new_vars = []
     nobs = len(df)
     overall_avg = df[dep_var].mean()
-
-    # loop through binary variables
+    #
     for var in bin_vars:
         vars2_bin, prof_bin = pbin(
             df=df,
@@ -551,22 +566,27 @@ def bin_cntl(
         if prof_bin is not None:
             prof_bin_all.append(prof_bin)
         if vars2_bin.loc[vars2_bin["name"] == var, "overall_good"].iloc[0] == 1:
+            vars2_bin.loc[vars2_bin["name"] == var, "new_var"] = prefix + var
             new_vars.append(prefix + var)
         if logger:
             logger.info(f"Processed variable: {var}, overall_good={vars2_bin.loc[vars2_bin['name'] == var, 'overall_good'].iloc[0]}")
             logger.debug(f"Processed variable: {var}, overall_good={vars2_bin.loc[vars2_bin['name'] == var, 'overall_good'].iloc[0]}")
-
-    # Write the new binary variables to the recode file
+    #
     with open(recode_py, "a") as f:
         f.write("\n# KEEP_LIST_B\n")
         f.write(f"KEEP_LIST_B = {new_vars}\n")
+    
+    keep_vars_bin=vars2_bin[["name","new_var"]].copy()
+    keep_vars_bin=keep_vars_bin.rename(columns={"name": "orig_var",
+                                        "new_var": "variable"})
+
     profile_df = pd.concat(prof_bin_all, ignore_index=True) if prof_bin_all else pd.DataFrame()
 
     if logger:
         logger.info(f"bin_cntl end, number of new binary variables = {len(new_vars)}")
         logger.debug(f"bin_cntl end, number of new binary variables = {len(new_vars)}")
 
-    return vars2_bin, profile_df, new_vars
+    return vars2_bin, profile_df, keep_vars_bin
 
 
 def pnom(
@@ -582,16 +602,16 @@ def pnom(
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
     
     path_output = config['path_output']
-    prefix = config['prefix']
-    missrate = config['missrate']
-    concrate = config['concrate']
-    profiling = config['profiling']
-    valcnt = config['valcnt']
-    minbinnc = config['minbinnc']
-    minbinnp = config['minbinnp']
-    talpha = config['talpha']
-    bonfer = config['bonfer']
-    nom_method = config['nom_method']
+    prefix = config.get("prefix", "R1_")
+    missrate = config.get('missrate',0.75)
+    concrate = config.get('concrate',0.9)
+    profiling = config.get("profiling", "Y") == 'Y'
+    valcnt = config.get("valcnt", 50)
+    minbinnc = config.get("minbinnc", 500)
+    minbinnp = config.get("minbinnp", 0.05)
+    talpha = config.get("talpha", 0.05)
+    bonfer = config.get("bonfer", "N") == 'Y'
+    nom_method = config.get("nom_method", "INDEX")
 
     if logger:
         logger.info(f"Processing nominal variable pnom: {var}, type: {typ}")
@@ -827,27 +847,27 @@ def nom_cntl(
     typ_map: dict,
     config: dict,
     logger: Optional[logging.Logger] = None
-) -> Tuple[pd.DataFrame, pd.DataFrame, list]:
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     
     path_output = config['path_output']
-    prefix = config['prefix']
+    prefix = config.get("prefix", "R1_")
     dep_var = config['dep_var']
 
     if logger:
         logger.info(f"nom_cntl_start, number of nominal variables = {len(nom_vars)}")
         logger.debug(f"nom_cntl_start, number of nominal variables = {len(nom_vars)}")
-    
+    #
     os.makedirs(path_output, exist_ok=True)
     recode_py = os.path.join(path_output, "CE2_Nominal_Var_Recode.py")
     header = ["# -*- coding: utf-8 -*-", "# Auto-generated nominal recode", ""]
     with open(recode_py, "w") as f:
         f.write("\n".join(header) + "\n")
-    # Initialize vars2_nom
+    #
     prof_nom_all = []
     new_vars = []
     nobs = len(df)
     overall_avg = df[dep_var].mean()
-    # loop through nominal variables
+    #
     for var in nom_vars:
         vars2_nom, prof_nom = pnom(
             df=df,
@@ -863,6 +883,7 @@ def nom_cntl(
         if prof_nom is not None:
             prof_nom_all.append(prof_nom)
         if vars2_nom.loc[vars2_nom["name"] == var, "overall_good"].iloc[0] == 1:
+            vars2_nom.loc[vars2_nom["name"] == var, "new_var"] = prefix + var
             new_vars.append(prefix + var)
         if logger:
             logger.info(f"Processed variable: {var}, overall_good={vars2_nom.loc[vars2_nom['name'] == var, 'overall_good'].iloc[0]}")
@@ -871,13 +892,18 @@ def nom_cntl(
     with open(recode_py, "a") as f:
         f.write("\n# KEEP_LIST_N\n")
         f.write(f"KEEP_LIST_N = {new_vars}\n")
+
+    keep_vars_nom=vars2_nom[["name","new_var"]].copy()
+    keep_vars_nom=keep_vars_nom.rename(columns={"name": "orig_var",
+                                        "new_var": "variable"})
+
     profile_df = pd.concat(prof_nom_all, ignore_index=True) if prof_nom_all else pd.DataFrame()
     
     if logger:
         logger.info(f"nom_cntl end, number of new nominal variables = {len(new_vars)}")
         logger.debug(f"nom_cntl end, number of new nominal variables = {len(new_vars)}")
 
-    return vars2_nom, profile_df, new_vars
+    return vars2_nom, profile_df, keep_vars_nom
 
 
 def pord(
@@ -891,10 +917,13 @@ def pord(
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
    
     dep_var = config['dep_var']
-    concrate =  config['concrate']
-    profiling = config['profiling']
-    num_category = config['num_category']
+    concrate = config.get('concrate',0.9)
+    profiling = config.get("profiling", "Y") == 'Y'
+    num_category = config.get('num_category',10)
 
+    if logger:
+        logger.info(f"Processing ordinal variable: {var} in pord")
+        logger.debug(f"Processing ordinal variable: {var} in pord")
     prof_ord = pd.DataFrame()
     
     # 1. Summarize counts
@@ -930,6 +959,9 @@ def pord(
             )
             cond = vars2_ord["name"] == var
             vars2_ord.loc[cond, ["overall_good"]] = 1
+            if logger:
+                logger.info(f"Updated vars2_ord for {var}")
+                logger.debug(f"Updated vars2_ord for {var}")
             if profiling:
                 if uniq_cnt <= num_category:
                     tmp_prof = prof1(df=df, var=var, config=config, logger=logger)
@@ -937,6 +969,9 @@ def pord(
                     tmp_prof = prof2(df=df, var=var, config=config, logger=logger)
                 prof3_df = prof3(prof=tmp_prof, var=var, overall_avg=overall_avg, nobs=nobs, config=config, logger=logger)
                 prof_ord = pd.DataFrame(prof3_df)
+            if logger:
+                logger.info(f"Profiling for ordinal variable {var} completed.")
+                logger.debug(f"Profiling for ordinal variable {var} completed.")
     return vars2_ord, prof_ord
 
 
@@ -946,17 +981,17 @@ def ord_cntl(
     vars2_ord: pd.DataFrame,
     config: dict,
     logger: Optional[logging.Logger] = None
-) -> Tuple[pd.DataFrame, pd.DataFrame, list]:
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     
     path_output = config['path_output']
-    prefix = config['prefix']
+    prefix = config.get("prefix", "R1_")
     dep_var = config['dep_var']
-    missrate = config['missrate']
+    missrate = config.get('missrate',0.75)
 
     if logger:
         logger.info(f"ord_cntl start, number of ordinal variables = {len(ord_vars)}")
         logger.debug(f"ord_cntl start, number of ordinal variables = {len(ord_vars)}")
-
+    #
     os.makedirs(path_output, exist_ok=True)
     recode_py = os.path.join(path_output, "CE2_Ordinal_Var_Recode.py")
     header = ["# -*- coding: utf-8 -*-", "# Auto-generated ordinal recode", ""]
@@ -967,23 +1002,21 @@ def ord_cntl(
     new_vars = []
     nobs = len(df)
     overall_avg = df[dep_var].mean()
-
-    # 确保 vars2 包含所需列
+    #
     for col in ("miss_cnt","uniq_cnt","max_cnt","new_var","Sign","Relationship"):
         if col not in vars2_ord.columns:
             vars2_ord[col] = np.nan
-
+    #
     for var in ord_vars:
         miss_cnt = int(df[var].isna().sum())
         uniq_cnt = int(df[var].nunique(dropna=False))
         max_cnt  = int(df[var].value_counts(dropna=False).max())
-
-        # 更新 vars2_ord
+        #
         m = vars2_ord["name"] == var
         vars2_ord.loc[m, "miss_cnt"] = miss_cnt
         vars2_ord.loc[m, "uniq_cnt"] = uniq_cnt
         vars2_ord.loc[m, "max_cnt"]  = max_cnt
-
+        #
         if miss_cnt > nobs * missrate:
             if logger:
                 logger.warning(f"Variable {var} missing count is {miss_cnt}, which is too high")
@@ -1001,7 +1034,8 @@ def ord_cntl(
             if prof_ord is not None:
                 prof_ord_all.append(prof_ord)
             if vars2_ord.loc[vars2_ord["name"] == var, "overall_good"].iloc[0] == 1:
-                new_vars.append(prefix + vars2_ord.loc[vars2_ord["name"] == var, "new_var"].iloc[0])
+                vars2_ord.loc[vars2_ord["name"] == var, "new_var"] = prefix + var
+                new_vars.append(prefix + var)
             if logger:
                 logger.info(f"Processed variable: {var}, overall_good={vars2_ord.loc[vars2_ord['name'] == var, 'overall_good'].iloc[0]}")
                 logger.debug(f"Processed variable: {var}, overall_good={vars2_ord.loc[vars2_ord['name'] == var, 'overall_good'].iloc[0]}")
@@ -1009,13 +1043,18 @@ def ord_cntl(
     with open(recode_py, "a") as f:
         f.write("\n# KEEP_LIST_O\n")
         f.write(f"KEEP_LIST_O = {new_vars}\n")
+
+    keep_vars_ord=vars2_ord[["name","new_var"]].copy()
+    keep_vars_ord=keep_vars_ord.rename(columns={"name": "orig_var",
+                                        "new_var": "variable"})
+
     profile_df = pd.concat(prof_ord_all, ignore_index=True) if prof_ord_all else pd.DataFrame()
     
     if logger:
-        logger.info(f"nom_cntl end, number of new nominal variables = {len(new_vars)}")
-        logger.debug(f"nom_cntl end, number of new nominal variables = {len(new_vars)}")
+        logger.info(f"ord_cntl end, number of new ordinal variables = {len(new_vars)}")
+        logger.debug(f"ord_cntl end, number of new ordinal variables = {len(new_vars)}")
 
-    return vars2_ord, profile_df, new_vars
+    return vars2_ord, profile_df, keep_vars_ord
 
 
 def pcont(
@@ -1029,10 +1068,12 @@ def pcont(
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
     dep_var = config['dep_var']
-    profiling = config['profiling']
+    profiling = config.get("profiling", "Y") == 'Y'
 
+    if logger:
+        logger.info(f"Processing continuous variable: {var} in pcont")
+        logger.debug(f"Processing continuous variable: {var} in pcont")
     prof_cont = pd.DataFrame()
-
 
     nonmiss = df.loc[df[var].notna(), dep_var]
     cons_dep = nonmiss.nunique() == 1
@@ -1052,10 +1093,16 @@ def pcont(
         )
         cond = vars2_cont["name"] == var
         vars2_cont.loc[cond, ["overall_good"]] = 1
+        if logger:
+            logger.info(f"Updated vars2_cont for {var}")
+            logger.debug(f"Updated vars2_cont for {var}")
         if profiling:
             tmp_prof = prof2(df=df, var=var, config=config, logger=logger)
             prof3_df = prof3(prof=tmp_prof, var=var, overall_avg=overall_avg, nobs=nobs, config=config, logger=logger)
             prof_cont = pd.DataFrame(prof3_df)
+        if logger:
+            logger.info(f"Profiling for continuous variable {var} completed.")
+            logger.debug(f"Profiling for continuous variable {var} completed.")
     return vars2_cont, prof_cont
 
 
@@ -1065,48 +1112,44 @@ def cont_cntl(
     vars2_cont: pd.DataFrame,
     config: dict,
     logger: Optional[logging.Logger] = None
-) -> Tuple[pd.DataFrame, pd.DataFrame, list]:
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
     path_output = config['path_output']
-    prefix = config['prefix']
+    prefix = config.get("prefix", "R1_")
     dep_var = config['dep_var']
-    missrate = config['missrate']
-    p_lo = config['p_lo']
-    p_hi = config['p_hi']
+    missrate = config.get('missrate',0.75)
+    p_lo = config.get('p_lo',1)
+    p_hi = config.get('p_hi',99)
 
     if logger:
         logger.info(f"cont_cntl start, number of continuous variables = {len(cont_vars)}")
         logger.debug(f"cont_cntl start, number of continuous variables = {len(cont_vars)}")
-
+    #
     os.makedirs(path_output, exist_ok=True)
     recode_py = os.path.join(path_output, "CE2_Continuous_Var_Recode.py")
     header = ["# -*- coding: utf-8 -*-", "# Auto-generated continuous recode", ""]
     with open(recode_py, "w") as f:
         f.write("\n".join(header) + "\n")
-
+    #
     prof_cont_all = []
     new_vars = []
     nobs = len(df)
     overall_avg = df[dep_var].mean()
-
-    # 确保 vars2 包含 miss_cnt,P_lo,P_hi,good,new_var,Sign,Relationship
+    #
     for col in ("miss_cnt", "P_lo", "P_hi", "overall_good", "new_var", "Sign", "Relationship"):
         if col not in vars2_cont.columns:
             vars2_cont[col] = np.nan
-
-    # 循环
+    #
     for var in cont_vars:
         miss_cnt = int(df[var].isna().sum())
         lo = df[var].quantile(p_lo / 100)
         hi = df[var].quantile(p_hi / 100)
-
-        # 更新 vars2_cont
+        #
         m = vars2_cont["name"] == var
         vars2_cont.loc[m, "miss_cnt"] = miss_cnt
         vars2_cont.loc[m, "P_lo"] = lo
         vars2_cont.loc[m, "P_hi"] = hi
-
-        # 3. 测试：missing过多 or constant DV or lo==hi
+        #
         if miss_cnt > nobs * missrate:
             if logger:
                 logger.warning(f"Variable {var} missing count is {miss_cnt}, which is too high")
@@ -1129,53 +1172,52 @@ def cont_cntl(
                 if prof_cont is not None:
                     prof_cont_all.append(prof_cont)
                 if vars2_cont.loc[vars2_cont["name"] == var, "overall_good"].iloc[0] == 1:
-                    new_vars.append(prefix + vars2_cont.loc[vars2_cont["name"] == var, "new_var"].iloc[0])
+                    vars2_cont.loc[vars2_cont["name"] == var, "new_var"] = prefix + var
+                    new_vars.append(prefix + var)
                 if logger:
                     logger.info(f"Processed variable: {var}, overall_good={vars2_cont.loc[vars2_cont['name'] == var, 'overall_good'].iloc[0]}")
                     logger.debug(f"Processed variable: {var}, overall_good={vars2_cont.loc[vars2_cont['name'] == var, 'overall_good'].iloc[0]}")
-
-    # 写 KEEP_LIST_C
+    #
     with open(recode_py, "a") as f:
         f.write("\n# KEEP_LIST_C\n")
         f.write(f"KEEP_LIST_C = {new_vars}\n")
+
+    keep_vars_cont=vars2_cont[["name","new_var"]].copy()
+    keep_vars_cont=keep_vars_cont.rename(columns={"name": "orig_var",
+                                        "new_var": "variable"})
+
     profile_df = pd.concat(prof_cont_all, ignore_index=True) if prof_cont_all else pd.DataFrame()
 
     if logger:
-        logger.info(f"nom_cntl end, number of new nominal variables = {len(new_vars)}")
-        logger.debug(f"nom_cntl end, number of new nominal variables = {len(new_vars)}")
+        logger.info(f"cont_cntl end, number of new continuous variables = {len(new_vars)}")
+        logger.debug(f"cont_cntl end, number of new continuous variables = {len(new_vars)}")
 
-    return vars2_cont, profile_df, new_vars
+    return vars2_cont, profile_df, keep_vars_cont
 
 
 def CE_EDA_Recode(
     indsn: pd.DataFrame, config: dict, logger: Optional[logging.Logger] = None
-) -> Tuple[pd.DataFrame, pd.DataFrame, dict]:
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
     if logger:
         logger.info("*** 2. EDA, profiling and Recode ***")
         logger.debug(f"Input dataset rows: {len(indsn)} columns: {indsn.columns.tolist()}")
 
     # Variable Lists
-    binvar = config["binvar"]
-    nomvar = config["nomvar"]
-    ordvar = config["ordvar"]
-    contvar = config["contvar"]
+    bin_vars = config["bin_vars"]
+    nom_vars = config["nom_vars"]
+    ord_vars = config["ord_vars"]
+    cont_vars = config["cont_vars"]
     # General Macro Variables
     path_output = config["path_output"]
     id = config["id"]
     dep_var = config["dep_var"]
     # Optional Macro Variables: These all have defaults that can be used
     # General Macro Variables
-    prefix = config.get("prefix", "R1_")
     # Macro 2: Recoding macro variables
     profiling = config.get("profiling", "Y").upper() == "Y"
-    missrate = config.get("missrate", 0.75)
     minbinnc = config.get("minbinnc", 500)
     minbinnp = config.get("minbinnp", 0.05)
-    p_lo = config.get("p_lo", 1)
-    p_hi = config.get("p_hi", 99)
-    transformationC = config.get("transformationC", "Y").upper() == "Y"
-    transformationO = config.get("transformationO", "N").upper() == "Y"
 
     # 1. Build workfile (exclude mod_val_test==3)
     mask_val = indsn.get("mod_val_test", 0) == 3
@@ -1201,39 +1243,37 @@ def CE_EDA_Recode(
     # UAT workfile.loc[9:29, 'Pclass'] = np.nan
 
     # 4. Binary variables
-    if binvar:
-        vars2_bin = pd.DataFrame({"name": binvar})
-        typ_map = {v: ('numeric' if pd.api.types.is_numeric_dtype(workfile[v]) else 'str') for v in binvar}
-        vars2_bin, prof_bin, keep_B = bin_cntl(
+    if bin_vars:
+        vars2_bin = pd.DataFrame({"name": bin_vars})
+        typ_map = {v: ('numeric' if pd.api.types.is_numeric_dtype(workfile[v]) else 'str') for v in bin_vars}
+        vars2_bin, prof_bin, keep_vars_bin = bin_cntl(
             df=workfile,
-            bin_vars=binvar,
+            bin_vars=bin_vars,
             vars2_bin=vars2_bin,
             typ_map=typ_map,
             config=config,
             logger=logger
         )
-
         if profiling and not prof_bin.empty:
-            profile_df = pd.concat([profile_df, prof_bin], ignore_index=True)
-        
+            profile_df = pd.concat([profile_df, prof_bin], ignore_index=True)        
         if logger:
             logger.info(f"Binary variables processed: {len(vars2_bin)}")
             logger.debug(f"Binary variables processed: {len(vars2_bin)}")
     else:
         typ_map = {}
         vars2_bin = pd.DataFrame()
-        keep_B = []
+        keep_vars_bin = pd.DataFrame()
         if logger:
             logger.info("No binary variables to process.")
             logger.debug("No binary variables to process.")
 
     # 5. Nominal variables
-    if nomvar:
-        vars2_nom = pd.DataFrame({"name": nomvar})
-        typ_map = {v: ('numeric' if pd.api.types.is_numeric_dtype(workfile[v]) else 'str') for v in nomvar}
-        vars2_nom, prof_nom, keep_N = nom_cntl(
+    if nom_vars:
+        vars2_nom = pd.DataFrame({"name": nom_vars})
+        typ_map = {v: ('numeric' if pd.api.types.is_numeric_dtype(workfile[v]) else 'str') for v in nom_vars}
+        vars2_nom, prof_nom, keep_vars_nom = nom_cntl(
             df=workfile,
-            nom_vars=nomvar,
+            nom_vars=nom_vars,
             vars2_nom=vars2_nom,
             typ_map=typ_map,
             config=config,
@@ -1247,17 +1287,17 @@ def CE_EDA_Recode(
     else:
         typ_map = {}
         vars2_nom = pd.DataFrame()
-        keep_N = []
+        keep_vars_nom = pd.DataFrame()
         if logger:
             logger.info("No nominal variables to process.")
             logger.debug("No nominal variables to process.")
 
     # 6. Ordinal variables
-    if ordvar:
-        vars2_ord = pd.DataFrame({"name": ordvar})
-        vars2_ord, prof_ord, keep_O = ord_cntl(
+    if ord_vars:
+        vars2_ord = pd.DataFrame({"name": ord_vars})
+        vars2_ord, prof_ord, keep_vars_ord = ord_cntl(
             df=workfile,
-            ord_vars=ordvar,
+            ord_vars=ord_vars,
             vars2_ord=vars2_ord,
             config=config,
             logger=logger
@@ -1269,17 +1309,17 @@ def CE_EDA_Recode(
             logger.debug(f"Ordinal variables processed: {len(vars2_ord)}")
     else:
         vars2_ord = pd.DataFrame()
-        keep_O = []
+        keep_vars_ord = pd.DataFrame()
         if logger:
             logger.info("No Ordinal variables to process.")
             logger.debug("No Ordinal variables to process.")
 
     # 7. Continuous variables
-    if contvar:
-        vars2_cont = pd.DataFrame({"name": contvar})
-        vars2_cont, prof_cont, keep_C = cont_cntl(
+    if cont_vars:
+        vars2_cont = pd.DataFrame({"name": cont_vars})
+        vars2_cont, prof_cont, keep_vars_cont = cont_cntl(
             df=workfile,
-            cont_vars=contvar,
+            cont_vars=cont_vars,
             vars2_cont=vars2_cont,
             config=config,
             logger=logger
@@ -1291,7 +1331,7 @@ def CE_EDA_Recode(
             logger.debug(f"Continuous variables processed: {len(vars2_cont)}")
     else:
         vars2_cont = pd.DataFrame()
-        keep_C = []
+        keep_vars_cont = pd.DataFrame()
         if logger:
             logger.info("No Continuous variables to process.")
             logger.debug("No Continuous variables to process.")
@@ -1300,7 +1340,7 @@ def CE_EDA_Recode(
     recoded = workfile.copy()
     for script in glob.glob(os.path.join(path_output, "CE2_*_Var_Recode.py")):
         # 把脚本读进来
-        code = open(script, "r").read()
+        code = open(script, "r", encoding="utf-8").read()
         # 在 recoded DataFrame 上执行
         # 保证 df 名称一致，并且 np 也可用
         local_vars = {"df": recoded, "np": np, "nan": np.nan}
@@ -1310,59 +1350,60 @@ def CE_EDA_Recode(
         exec(code, {"df": recoded, "np": np, "nan": np.nan})
 
     # 然后就能选出所有新变量
-    base_keep = [c for c in [id, "mod_val_test", dep_var] if c in recoded.columns]
-    all_new = keep_B + keep_N + keep_O + keep_C
+    keep_list = config.get('keep_list',[])
+    base_keep = [c for c in [keep_list, id, "mod_val_test", dep_var] if c in recoded.columns]
+    keep_vars_bin_list = keep_vars_bin['variable'].dropna().tolist()
+    keep_vars_nom_list = keep_vars_nom['variable'].dropna().tolist()
+    keep_vars_ord_list = keep_vars_ord['variable'].dropna().tolist()
+    keep_vars_cont_list = keep_vars_cont['variable'].dropna().tolist()
+    all_new = keep_vars_bin_list+keep_vars_nom_list+keep_vars_ord_list+keep_vars_cont_list
     CE2_Recoded = recoded[base_keep + all_new].copy()
 
-    # 10. Correlation and Excel report
-    if dep_var in CE2_Recoded.columns and pd.api.types.is_numeric_dtype(
-        CE2_Recoded[dep_var]
-    ):
-        corr = (
-            CE2_Recoded.corr()[dep_var].drop(dep_var).abs().sort_values(ascending=False)
-        )
-        corr_df = corr.reset_index().rename(
-            columns={"index": "variable", dep_var: "correlation"}
-        )
-    else:
-        corr_df = pd.DataFrame(columns=["variable", "correlation"])
+    vars2_bin['type']='binary'
+    col = 'type'
+    cols = list(vars2_bin.columns)
+    cols.pop(cols.index(col))
+    cols.insert(1, col)
+    vars2_bin = vars2_bin[cols]
 
-    writer = pd.ExcelWriter(
-        os.path.join(path_output, "CE2_EDA_report.xlsx"), engine="xlsxwriter"
-    )
-    if keep_B:
-        pd.DataFrame(vars2_bin).assign(new_var=pd.Series(keep_B)).to_excel(
-            writer, "Binary", index=False
-        )
-    if keep_N:
-        pd.DataFrame(vars2_nom).assign(new_var=pd.Series(keep_N)).to_excel(
-            writer, "Nominal", index=False
-        )
-    if keep_O:
-        pd.DataFrame(vars2_ord).assign(new_var=pd.Series(keep_O)).to_excel(
-            writer, "Ordinal", index=False
-        )
-    if keep_C:
-        pd.DataFrame(vars2_cont).assign(new_var=pd.Series(keep_C)).to_excel(
-            writer, "Continuous", index=False
-        )
-    writer.close()
+    vars2_nom['type']='nominal'
+    col = 'type'
+    cols = list(vars2_nom.columns)
+    cols.pop(cols.index(col))
+    cols.insert(1, col)
+    vars2_nom = vars2_nom[cols]
 
-    # 11. Variable lookup
-    lookup = []
-    for v in all_new:
-        lbl = v
-        if not vars2_bin.empty and v in getattr(vars2_bin, "name", []):
-        elif not vars2_nom.empty and v in getattr(vars2_nom, "name", []):
-        elif not vars2_ord.empty and v in getattr(vars2_ord, "name", []):
-        elif (
-            not vars2_cont.empty
-            and hasattr(vars2_cont, "name")
-            and v in vars2_cont["name"].values
-        ):
-    lookup.append((v, lbl, v, lbl))
-    var_lookup_df = pd.DataFrame(
-        lookup, columns=["variable", "label", "orig_var", "orig_label"]
-    )
+    vars2_ord['type']='ordinal'
+    col = 'type'
+    cols = list(vars2_ord.columns)
+    cols.pop(cols.index(col))
+    cols.insert(1, col)
+    vars2_ord = vars2_ord[cols]
 
-    return CE2_Recoded, profile_df, var_lookup_df
+    vars2_cont['type']='continuous'
+    col = 'type'
+    cols = list(vars2_cont.columns)
+    cols.pop(cols.index(col))
+    cols.insert(1, col)
+    vars2_cont = vars2_cont[cols]
+
+    # —— 4. 生成各类变量的 summary，然后输出到 Excel 不同 sheet —— 
+    report_path = os.path.join(path_output, "CE2_EDA_report.xlsx")
+    with pd.ExcelWriter(report_path, engine="xlsxwriter") as writer:
+        # 4.1 Binary
+        vars2_bin[vars2_bin['overall_good'] == 1].to_excel(writer, sheet_name="Binary Variables", index=False)
+        # 4.2 Nominal
+        vars2_nom[vars2_nom['overall_good'] == 1].to_excel(writer, sheet_name="Nominal Variables", index=False)
+        # 4.3 Ordinal
+        vars2_ord[vars2_ord['overall_good'] == 1].to_excel(writer, sheet_name="Ordinal Variables", index=False)
+        # 4.4 Continuous
+        vars2_cont[vars2_cont['overall_good'] == 1].to_excel(writer, sheet_name="Continuous Variables", index=False)
+        # 4.5 Correlation
+        if dep_var in CE2_Recoded.columns and pd.api.types.is_numeric_dtype(CE2_Recoded[dep_var]):
+            corr = CE2_Recoded.corr()[dep_var].drop(dep_var).sort_values(key=lambda s: s.abs(), ascending=False)
+            corr_df = corr.reset_index().rename(columns={"index": "variable", dep_var: "correlation"})
+        else:
+            corr_df = pd.DataFrame(columns=["variable", "correlation"])
+        corr_df.to_excel(writer, sheet_name="Correlations", index=False)
+
+    return CE2_Recoded, profile_df

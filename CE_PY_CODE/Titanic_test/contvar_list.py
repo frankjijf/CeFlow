@@ -1,6 +1,6 @@
 def contvar_list():
-    contvar = [
+    cont_vars = [
     "Age",
     "Fare"
     ]
-    return contvar
+    return cont_vars
