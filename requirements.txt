@@ -5,3 +5,6 @@ statsmodels
 scipy
 scikit-learn
 openpyxl
+pytest
+black
+flake8

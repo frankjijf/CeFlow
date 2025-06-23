@@ -1,6 +1,7 @@
 import logging, os, sys
 from contextlib import contextmanager
 
+
 @contextmanager
 def printto(log: str, lst: str):
     """Redirect standard output and errors to files and yield a logger.
@@ -29,20 +30,20 @@ def printto(log: str, lst: str):
     for h in logger.handlers[:]:
         logger.removeHandler(h)
 
-    log_fh = logging.FileHandler(log, mode='w')
+    log_fh = logging.FileHandler(log, mode="w")
     log_fh.setLevel(logging.DEBUG)
-    lst_fh = logging.FileHandler(lst, mode='w')
+    lst_fh = logging.FileHandler(lst, mode="w")
     lst_fh.setLevel(logging.INFO)
 
-    formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s')
+    formatter = logging.Formatter("%(asctime)s %(levelname)s: %(message)s")
     log_fh.setFormatter(formatter)
     lst_fh.setFormatter(formatter)
 
     logger.addHandler(log_fh)
     logger.addHandler(lst_fh)
 
-    sys.stdout = open(lst, 'a')
-    sys.stderr = open(log, 'a')
+    sys.stdout = open(lst, "a")
+    sys.stderr = open(log, "a")
 
     try:
         yield logger
