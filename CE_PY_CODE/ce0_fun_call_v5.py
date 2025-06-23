@@ -8,9 +8,9 @@ import Titanic_test.nomvar_list as nomvar_list
 import Titanic_test.binvar_list as binvar_list
 import Titanic_test.ordvar_list as ordvar_list
 
-from CE1_Sampling import CE_Sampling
-from CE_Log_Tool import printto
-from CE2_EDA_Recode import (
+from ce1_sampling import CE_Sampling
+from ce_log_tool import printto
+from ce2_eda_recode import (
     pnum,
     prof1,
     prof2,
