@@ -3,6 +3,20 @@ from contextlib import contextmanager
 
 @contextmanager
 def printto(log: str, lst: str):
+    """Redirect standard output and errors to files and yield a logger.
+
+    Parameters
+    ----------
+    log : str
+        Path to the debug log file.
+    lst : str
+        Path to the listing file capturing stdout.
+
+    Yields
+    ------
+    logging.Logger
+        Logger configured with handlers for the two files.
+    """
     original_stdout = sys.stdout
     original_stderr = sys.stderr
 
