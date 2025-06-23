@@ -1,0 +1,70 @@
+2025-06-23 20:42:38,164 INFO: *** 2. EDA, profiling and Recode ***
+2025-06-23 20:42:38,164 DEBUG: Input dataset rows: 20263 columns: ['PassengerId', 'Survived', 'Pclass', 'Name', 'Sex', 'Age', 'SibSp', 'Parch', 'Ticket', 'Fare', 'Cabin', 'Embarked', 'Cabin2', 'mod_val_test']
+2025-06-23 20:42:38,172 INFO: Excluded Validation rows: 263
+2025-06-23 20:42:38,172 DEBUG: Rows after exclusion: 20000
+2025-06-23 20:42:38,173 INFO: No binary variables to process.
+2025-06-23 20:42:38,173 DEBUG: No binary variables to process.
+2025-06-23 20:42:38,173 INFO: nom_cntl_start, number of nominal variables = 1
+2025-06-23 20:42:38,173 DEBUG: nom_cntl_start, number of nominal variables = 1
+2025-06-23 20:42:38,175 INFO: Processing nominal variable pnom: Embarked, type: str
+2025-06-23 20:42:38,175 DEBUG: Processing nominal variable pnom: Embarked, type: str
+2025-06-23 20:42:38,200 INFO: Recode for variable Embarked written to streamlit_output\CE2_Nominal_Var_Recode.py
+2025-06-23 20:42:38,200 DEBUG: Recode for variable Embarked written to streamlit_output\CE2_Nominal_Var_Recode.py
+2025-06-23 20:42:38,202 INFO: Updated vars2_nom for Embarked: uniq_cnt=4, miss_cnt=17, max_cnt=15597
+2025-06-23 20:42:38,202 DEBUG: Updated vars2_nom for Embarked: uniq_cnt=4, miss_cnt=17, max_cnt=15597
+2025-06-23 20:42:38,211 INFO: Profiling for variable Embarked completed.
+2025-06-23 20:42:38,212 DEBUG: Profiling for variable Embarked completed.
+2025-06-23 20:42:38,213 INFO: Processed variable: Embarked, overall_good=1.0
+2025-06-23 20:42:38,214 DEBUG: Processed variable: Embarked, overall_good=1.0
+2025-06-23 20:42:38,215 INFO: nom_cntl end, number of new nominal variables = 1
+2025-06-23 20:42:38,215 DEBUG: nom_cntl end, number of new nominal variables = 1
+2025-06-23 20:42:38,216 INFO: Nominal variables processed: 1
+2025-06-23 20:42:38,216 DEBUG: Nominal variables processed: 1
+2025-06-23 20:42:38,217 INFO: ord_cntl start, number of ordinal variables = 1
+2025-06-23 20:42:38,217 DEBUG: ord_cntl start, number of ordinal variables = 1
+2025-06-23 20:42:38,221 INFO: Processing ordinal variable: Pclass in pord
+2025-06-23 20:42:38,222 DEBUG: Processing ordinal variable: Pclass in pord
+2025-06-23 20:42:38,223 INFO: Processing numeric ordinal variable: Pclass in pnum
+2025-06-23 20:42:38,223 DEBUG: Processing numeric ordinal variable: Pclass in pnum
+2025-06-23 20:42:38,271 INFO: Recode for variable Pclass written to streamlit_output\CE2_Ordinal_Var_Recode.py
+2025-06-23 20:42:38,271 DEBUG: Recode for variable Pclass written to streamlit_output\CE2_Ordinal_Var_Recode.py
+2025-06-23 20:42:38,273 INFO: Updated vars2_ord for Pclass
+2025-06-23 20:42:38,273 DEBUG: Updated vars2_ord for Pclass
+2025-06-23 20:42:38,277 INFO: Profiling for ordinal variable Pclass completed.
+2025-06-23 20:42:38,278 DEBUG: Profiling for ordinal variable Pclass completed.
+2025-06-23 20:42:38,279 INFO: Processed variable: Pclass, overall_good=1.0
+2025-06-23 20:42:38,280 DEBUG: Processed variable: Pclass, overall_good=1.0
+2025-06-23 20:42:38,283 INFO: ord_cntl end, number of new ordinal variables = 1
+2025-06-23 20:42:38,283 DEBUG: ord_cntl end, number of new ordinal variables = 1
+2025-06-23 20:42:38,283 INFO: Ordinal variables processed: 1
+2025-06-23 20:42:38,283 DEBUG: Ordinal variables processed: 1
+2025-06-23 20:42:38,285 INFO: cont_cntl start, number of continuous variables = 2
+2025-06-23 20:42:38,285 DEBUG: cont_cntl start, number of continuous variables = 2
+2025-06-23 20:42:38,291 INFO: Processing continuous variable: Age in pcont
+2025-06-23 20:42:38,292 DEBUG: Processing continuous variable: Age in pcont
+2025-06-23 20:42:38,293 INFO: Processing numeric continuous variable: Age in pnum
+2025-06-23 20:42:38,293 DEBUG: Processing numeric continuous variable: Age in pnum
+2025-06-23 20:42:38,438 INFO: Recode for variable Age written to streamlit_output\CE2_Continuous_Var_Recode.py
+2025-06-23 20:42:38,438 DEBUG: Recode for variable Age written to streamlit_output\CE2_Continuous_Var_Recode.py
+2025-06-23 20:42:38,440 INFO: Updated vars2_cont for Age
+2025-06-23 20:42:38,440 DEBUG: Updated vars2_cont for Age
+2025-06-23 20:42:38,450 INFO: Profiling for continuous variable Age completed.
+2025-06-23 20:42:38,450 DEBUG: Profiling for continuous variable Age completed.
+2025-06-23 20:42:38,452 INFO: Processed variable: Age, overall_good=1.0
+2025-06-23 20:42:38,452 DEBUG: Processed variable: Age, overall_good=1.0
+2025-06-23 20:42:38,454 INFO: Processing continuous variable: Fare in pcont
+2025-06-23 20:42:38,455 DEBUG: Processing continuous variable: Fare in pcont
+2025-06-23 20:42:38,455 INFO: Processing numeric continuous variable: Fare in pnum
+2025-06-23 20:42:38,456 DEBUG: Processing numeric continuous variable: Fare in pnum
+2025-06-23 20:42:38,612 INFO: Recode for variable Fare written to streamlit_output\CE2_Continuous_Var_Recode.py
+2025-06-23 20:42:38,612 DEBUG: Recode for variable Fare written to streamlit_output\CE2_Continuous_Var_Recode.py
+2025-06-23 20:42:38,613 INFO: Updated vars2_cont for Fare
+2025-06-23 20:42:38,613 DEBUG: Updated vars2_cont for Fare
+2025-06-23 20:42:38,623 INFO: Profiling for continuous variable Fare completed.
+2025-06-23 20:42:38,623 DEBUG: Profiling for continuous variable Fare completed.
+2025-06-23 20:42:38,624 INFO: Processed variable: Fare, overall_good=1.0
+2025-06-23 20:42:38,624 DEBUG: Processed variable: Fare, overall_good=1.0
+2025-06-23 20:42:38,626 INFO: cont_cntl end, number of new continuous variables = 2
+2025-06-23 20:42:38,627 DEBUG: cont_cntl end, number of new continuous variables = 2
+2025-06-23 20:42:38,627 INFO: Continuous variables processed: 2
+2025-06-23 20:42:38,627 DEBUG: Continuous variables processed: 2

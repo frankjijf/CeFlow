@@ -565,6 +565,7 @@ def bin_cntl(
         )
         if prof_bin is not None:
             prof_bin_all.append(prof_bin)
+        vars2_bin.loc[vars2_bin["name"] == var, "new_var"] = ''
         if vars2_bin.loc[vars2_bin["name"] == var, "overall_good"].iloc[0] == 1:
             vars2_bin.loc[vars2_bin["name"] == var, "new_var"] = prefix + var
             new_vars.append(prefix + var)
@@ -576,7 +577,7 @@ def bin_cntl(
         f.write("\n# KEEP_LIST_B\n")
         f.write(f"KEEP_LIST_B = {new_vars}\n")
     
-    keep_vars_bin=vars2_bin[["name","new_var"]].copy()
+    keep_vars_bin=vars2_bin[vars2_bin['overall_good'] == 1][["name","new_var"]].copy()
     keep_vars_bin=keep_vars_bin.rename(columns={"name": "orig_var",
                                         "new_var": "variable"})
 
@@ -882,6 +883,7 @@ def nom_cntl(
         )
         if prof_nom is not None:
             prof_nom_all.append(prof_nom)
+        vars2_nom.loc[vars2_nom["name"] == var, "new_var"] = ''
         if vars2_nom.loc[vars2_nom["name"] == var, "overall_good"].iloc[0] == 1:
             vars2_nom.loc[vars2_nom["name"] == var, "new_var"] = prefix + var
             new_vars.append(prefix + var)
@@ -893,7 +895,7 @@ def nom_cntl(
         f.write("\n# KEEP_LIST_N\n")
         f.write(f"KEEP_LIST_N = {new_vars}\n")
 
-    keep_vars_nom=vars2_nom[["name","new_var"]].copy()
+    keep_vars_nom=vars2_nom[vars2_nom['overall_good'] == 1][["name","new_var"]].copy()
     keep_vars_nom=keep_vars_nom.rename(columns={"name": "orig_var",
                                         "new_var": "variable"})
 
@@ -1033,6 +1035,7 @@ def ord_cntl(
                 )
             if prof_ord is not None:
                 prof_ord_all.append(prof_ord)
+            vars2_ord.loc[vars2_ord["name"] == var, "new_var"] = ''
             if vars2_ord.loc[vars2_ord["name"] == var, "overall_good"].iloc[0] == 1:
                 vars2_ord.loc[vars2_ord["name"] == var, "new_var"] = prefix + var
                 new_vars.append(prefix + var)
@@ -1044,7 +1047,7 @@ def ord_cntl(
         f.write("\n# KEEP_LIST_O\n")
         f.write(f"KEEP_LIST_O = {new_vars}\n")
 
-    keep_vars_ord=vars2_ord[["name","new_var"]].copy()
+    keep_vars_ord=vars2_ord[vars2_ord['overall_good'] == 1][["name","new_var"]].copy()
     keep_vars_ord=keep_vars_ord.rename(columns={"name": "orig_var",
                                         "new_var": "variable"})
 
@@ -1171,6 +1174,7 @@ def cont_cntl(
                     )
                 if prof_cont is not None:
                     prof_cont_all.append(prof_cont)
+                vars2_cont.loc[vars2_cont["name"] == var, "new_var"] = ''
                 if vars2_cont.loc[vars2_cont["name"] == var, "overall_good"].iloc[0] == 1:
                     vars2_cont.loc[vars2_cont["name"] == var, "new_var"] = prefix + var
                     new_vars.append(prefix + var)
@@ -1182,7 +1186,7 @@ def cont_cntl(
         f.write("\n# KEEP_LIST_C\n")
         f.write(f"KEEP_LIST_C = {new_vars}\n")
 
-    keep_vars_cont=vars2_cont[["name","new_var"]].copy()
+    keep_vars_cont=vars2_cont[vars2_cont['overall_good'] == 1][["name","new_var"]].copy()
     keep_vars_cont=keep_vars_cont.rename(columns={"name": "orig_var",
                                         "new_var": "variable"})
 
@@ -1204,10 +1208,10 @@ def CE_EDA_Recode(
         logger.debug(f"Input dataset rows: {len(indsn)} columns: {indsn.columns.tolist()}")
 
     # Variable Lists
-    bin_vars = config["bin_vars"]
-    nom_vars = config["nom_vars"]
-    ord_vars = config["ord_vars"]
-    cont_vars = config["cont_vars"]
+    bin_vars = config.get("bin_vars",[])
+    nom_vars = config.get("nom_vars",[])
+    ord_vars = config.get("ord_vars",[])
+    cont_vars = config.get("cont_vars",[])
     # General Macro Variables
     path_output = config["path_output"]
     id = config["id"]
@@ -1259,10 +1263,20 @@ def CE_EDA_Recode(
         if logger:
             logger.info(f"Binary variables processed: {len(vars2_bin)}")
             logger.debug(f"Binary variables processed: {len(vars2_bin)}")
+        if not keep_vars_bin.empty:
+            keep_vars_bin_list = keep_vars_bin['variable'].dropna().tolist()
+            vars2_bin['type']='binary'
+            col = 'type'
+            cols = list(vars2_bin.columns)
+            cols.pop(cols.index(col))
+            cols.insert(1, col)
+            vars2_bin = vars2_bin[cols]
+        else:
+            keep_vars_bin_list = []
     else:
         typ_map = {}
         vars2_bin = pd.DataFrame()
-        keep_vars_bin = pd.DataFrame()
+        keep_vars_bin_list = []
         if logger:
             logger.info("No binary variables to process.")
             logger.debug("No binary variables to process.")
@@ -1284,10 +1298,20 @@ def CE_EDA_Recode(
         if logger:
             logger.info(f"Nominal variables processed: {len(vars2_nom)}")
             logger.debug(f"Nominal variables processed: {len(vars2_nom)}")
+        if not keep_vars_nom.empty:
+            keep_vars_nom_list = keep_vars_nom['variable'].dropna().tolist()
+            vars2_nom['type']='nominal'
+            col = 'type'
+            cols = list(vars2_nom.columns)
+            cols.pop(cols.index(col))
+            cols.insert(1, col)
+            vars2_nom = vars2_nom[cols]
+        else:
+            keep_vars_nom_list = []
     else:
         typ_map = {}
         vars2_nom = pd.DataFrame()
-        keep_vars_nom = pd.DataFrame()
+        keep_vars_nom_list = []
         if logger:
             logger.info("No nominal variables to process.")
             logger.debug("No nominal variables to process.")
@@ -1307,9 +1331,19 @@ def CE_EDA_Recode(
         if logger:
             logger.info(f"Ordinal variables processed: {len(vars2_ord)}")
             logger.debug(f"Ordinal variables processed: {len(vars2_ord)}")
+        if not keep_vars_ord.empty:
+            keep_vars_ord_list = keep_vars_ord['variable'].dropna().tolist()
+            vars2_ord['type']='ordinal'
+            col = 'type'
+            cols = list(vars2_ord.columns)
+            cols.pop(cols.index(col))
+            cols.insert(1, col)
+            vars2_ord = vars2_ord[cols]
+        else:
+            keep_vars_ord_list = []
     else:
         vars2_ord = pd.DataFrame()
-        keep_vars_ord = pd.DataFrame()
+        keep_vars_ord_list = []
         if logger:
             logger.info("No Ordinal variables to process.")
             logger.debug("No Ordinal variables to process.")
@@ -1329,9 +1363,19 @@ def CE_EDA_Recode(
         if logger:
             logger.info(f"Continuous variables processed: {len(vars2_cont)}")
             logger.debug(f"Continuous variables processed: {len(vars2_cont)}")
+        if not vars2_cont.empty:
+            keep_vars_cont_list = keep_vars_cont['variable'].dropna().tolist()
+            vars2_cont['type']='continuous'
+            col = 'type'
+            cols = list(vars2_cont.columns)
+            cols.pop(cols.index(col))
+            cols.insert(1, col)
+            vars2_cont = vars2_cont[cols]
+        else:
+            keep_vars_cont_list = []
     else:
         vars2_cont = pd.DataFrame()
-        keep_vars_cont = pd.DataFrame()
+        keep_vars_cont_list = []
         if logger:
             logger.info("No Continuous variables to process.")
             logger.debug("No Continuous variables to process.")
@@ -1351,53 +1395,25 @@ def CE_EDA_Recode(
 
     # 然后就能选出所有新变量
     keep_list = config.get('keep_list',[])
-    base_keep = [c for c in [keep_list, id, "mod_val_test", dep_var] if c in recoded.columns]
-    keep_vars_bin_list = keep_vars_bin['variable'].dropna().tolist()
-    keep_vars_nom_list = keep_vars_nom['variable'].dropna().tolist()
-    keep_vars_ord_list = keep_vars_ord['variable'].dropna().tolist()
-    keep_vars_cont_list = keep_vars_cont['variable'].dropna().tolist()
-    all_new = keep_vars_bin_list+keep_vars_nom_list+keep_vars_ord_list+keep_vars_cont_list
-    CE2_Recoded = recoded[base_keep + all_new].copy()
-
-    vars2_bin['type']='binary'
-    col = 'type'
-    cols = list(vars2_bin.columns)
-    cols.pop(cols.index(col))
-    cols.insert(1, col)
-    vars2_bin = vars2_bin[cols]
-
-    vars2_nom['type']='nominal'
-    col = 'type'
-    cols = list(vars2_nom.columns)
-    cols.pop(cols.index(col))
-    cols.insert(1, col)
-    vars2_nom = vars2_nom[cols]
-
-    vars2_ord['type']='ordinal'
-    col = 'type'
-    cols = list(vars2_ord.columns)
-    cols.pop(cols.index(col))
-    cols.insert(1, col)
-    vars2_ord = vars2_ord[cols]
-
-    vars2_cont['type']='continuous'
-    col = 'type'
-    cols = list(vars2_cont.columns)
-    cols.pop(cols.index(col))
-    cols.insert(1, col)
-    vars2_cont = vars2_cont[cols]
+    base_keep = [id, "mod_val_test", dep_var]
+    all_new = keep_vars_bin_list + keep_vars_nom_list + keep_vars_ord_list + keep_vars_cont_list
+    CE2_Recoded = recoded[base_keep + keep_list + all_new].copy()
 
     # —— 4. 生成各类变量的 summary，然后输出到 Excel 不同 sheet —— 
     report_path = os.path.join(path_output, "CE2_EDA_report.xlsx")
     with pd.ExcelWriter(report_path, engine="xlsxwriter") as writer:
         # 4.1 Binary
-        vars2_bin[vars2_bin['overall_good'] == 1].to_excel(writer, sheet_name="Binary Variables", index=False)
+        if not vars2_bin.empty:
+            vars2_bin[vars2_bin['overall_good'] == 1].to_excel(writer, sheet_name="Binary Variables", index=False)
         # 4.2 Nominal
-        vars2_nom[vars2_nom['overall_good'] == 1].to_excel(writer, sheet_name="Nominal Variables", index=False)
+        if not vars2_nom.empty:
+            vars2_nom[vars2_nom['overall_good'] == 1].to_excel(writer, sheet_name="Nominal Variables", index=False)
         # 4.3 Ordinal
-        vars2_ord[vars2_ord['overall_good'] == 1].to_excel(writer, sheet_name="Ordinal Variables", index=False)
+        if not vars2_ord.empty:
+            vars2_ord[vars2_ord['overall_good'] == 1].to_excel(writer, sheet_name="Ordinal Variables", index=False)
         # 4.4 Continuous
-        vars2_cont[vars2_cont['overall_good'] == 1].to_excel(writer, sheet_name="Continuous Variables", index=False)
+        if not vars2_cont.empty:
+            vars2_cont[vars2_cont['overall_good'] == 1].to_excel(writer, sheet_name="Continuous Variables", index=False)
         # 4.5 Correlation
         if dep_var in CE2_Recoded.columns and pd.api.types.is_numeric_dtype(CE2_Recoded[dep_var]):
             corr = CE2_Recoded.corr()[dep_var].drop(dep_var).sort_values(key=lambda s: s.abs(), ascending=False)
