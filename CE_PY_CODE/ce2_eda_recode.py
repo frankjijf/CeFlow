@@ -8,6 +8,15 @@ import logging
 from typing import Tuple, Optional
 from sklearn.metrics import roc_auc_score
 
+"""Utilities for exploratory data analysis and variable recoding.
+
+This module contains helper functions used by the CEFlow pipeline to profile
+variables, perform missing value imputation and create Python recode scripts.
+Functions are grouped by variable type (binary, nominal, ordinal and
+continuous) and return both updated metadata tables and optional profiling
+DataFrames.
+"""
+
 
 def pnum(
     df: pd.DataFrame,
@@ -291,8 +300,30 @@ def pnum(
 
 
 def prof1(
-    df: pd.DataFrame, var: str, config: dict, logger: Optional[logging.Logger] = None
+    df: pd.DataFrame,
+    var: str,
+    config: dict,
+    logger: Optional[logging.Logger] = None,
 ) -> pd.DataFrame:
+    """Profile ``var`` by calculating count and mean of the dependent variable.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input dataset containing ``var`` and the dependent variable.
+    var : str
+        Column name to group by.
+    config : dict
+        Configuration dictionary with ``dep_var`` specifying the dependent
+        variable.
+    logger : logging.Logger, optional
+        Optional logger for debug output.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with columns ``xcategory``, ``xcount`` and ``xmean``.
+    """
 
     dep_var = config["dep_var"]
     prof = df.groupby(var)[dep_var].agg(xcount="size", xmean="mean").reset_index()
@@ -303,8 +334,31 @@ def prof1(
 
 
 def prof2(
-    df: pd.DataFrame, var: str, config: dict, logger: Optional[logging.Logger] = None
+    df: pd.DataFrame,
+    var: str,
+    config: dict,
+    logger: Optional[logging.Logger] = None,
 ) -> pd.DataFrame:
+    """Bin a numeric variable and profile the dependent variable in each bin.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input dataset.
+    var : str
+        Continuous variable to bin.
+    config : dict
+        Configuration dictionary with ``dep_var`` and optional binning options
+        like ``num_category`` and ``equal_dist``.
+    logger : logging.Logger, optional
+        Optional logger for debug output.
+
+    Returns
+    -------
+    pd.DataFrame
+        Summary statistics for each bin including ``lo``, ``hi``, ``xcount`` and
+        ``xmean``.
+    """
 
     dep_var = config["dep_var"]
     num_category = config.get("num_category", 10)
@@ -366,6 +420,29 @@ def prof3(
     config: dict,
     logger: Optional[logging.Logger] = None,
 ) -> pd.DataFrame:
+    """Convert profiling results to a standardized report format.
+
+    Parameters
+    ----------
+    prof : pd.DataFrame
+        Output from :func:`prof1` or :func:`prof2`.
+    var : str
+        Variable name that was profiled.
+    overall_avg : float
+        Overall mean of the dependent variable.
+    nobs : int
+        Total number of observations used in profiling.
+    config : dict
+        Configuration dictionary (currently unused).
+    logger : logging.Logger, optional
+        Optional logger for debug output.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame summarising each category/bin with percentage, index and
+        highlight star.
+    """
 
     merged = prof.copy()
     merged["variable"] = var
@@ -422,6 +499,33 @@ def pbin(
     config: dict,
     logger: Optional[logging.Logger] = None,
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Process a binary variable and generate recode instructions.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input dataset.
+    var : str
+        Variable to process.
+    typ : str
+        ``"numeric"`` if values are 0/1, otherwise ``"str"``.
+    vars2_bin : pd.DataFrame
+        Metadata table to update.
+    overall_avg : float
+        Overall average of the dependent variable.
+    nobs : int
+        Number of observations in ``df``.
+    config : dict
+        Configuration dictionary with options such as ``missrate`` and
+        ``concrate``.
+    logger : logging.Logger, optional
+        Optional logger for debug output.
+
+    Returns
+    -------
+    Tuple[pd.DataFrame, pd.DataFrame]
+        Updated ``vars2_bin`` and an optional profiling DataFrame.
+    """
 
     dep_var = config["dep_var"]
     path_output = config["path_output"]
@@ -606,6 +710,29 @@ def bin_cntl(
     config: dict,
     logger: Optional[logging.Logger] = None,
 ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Controller for processing multiple binary variables.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input dataset.
+    bin_vars : list
+        List of binary variable names to process.
+    vars2_bin : pd.DataFrame
+        Metadata table for binary variables.
+    typ_map : dict
+        Mapping of variable name to ``"numeric"`` or ``"str"``.
+    config : dict
+        Configuration dictionary used by :func:`pbin`.
+    logger : logging.Logger, optional
+        Optional logger for progress output.
+
+    Returns
+    -------
+    Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]
+        Updated ``vars2_bin``, profiling DataFrame and keep list for recoded
+        variables.
+    """
 
     path_output = config["path_output"]
     prefix = config.get("prefix", "R1_")
@@ -684,6 +811,34 @@ def pnom(
     config: dict,
     logger: Optional[logging.Logger] = None,
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Process a nominal (categorical) variable.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input dataset.
+    var : str
+        Variable name to process.
+    typ : str
+        ``"numeric"`` or ``"str`` describing the data type of ``var``.
+    dep_var : str
+        Name of the dependent variable column.
+    vars2_nom : pd.DataFrame
+        Metadata table for nominal variables.
+    overall_avg : float
+        Overall average of the dependent variable.
+    nobs : int
+        Number of observations.
+    config : dict
+        Configuration dictionary controlling grouping and thresholds.
+    logger : logging.Logger, optional
+        Optional logger for debug output.
+
+    Returns
+    -------
+    Tuple[pd.DataFrame, pd.DataFrame]
+        Updated ``vars2_nom`` and a profiling DataFrame for ``var``.
+    """
 
     path_output = config["path_output"]
     prefix = config.get("prefix", "R1_")
@@ -978,6 +1133,29 @@ def nom_cntl(
     config: dict,
     logger: Optional[logging.Logger] = None,
 ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Controller for processing a list of nominal variables.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input dataset.
+    nom_vars : list
+        Names of nominal variables to process.
+    vars2_nom : pd.DataFrame
+        Metadata table for nominal variables.
+    typ_map : dict
+        Mapping of variable names to their data type.
+    config : dict
+        Configuration dictionary passed to :func:`pnom`.
+    logger : logging.Logger, optional
+        Optional logger for progress output.
+
+    Returns
+    -------
+    Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]
+        Updated ``vars2_nom``, profiling DataFrame and keep list for recoded
+        variables.
+    """
 
     path_output = config["path_output"]
     prefix = config.get("prefix", "R1_")
@@ -1055,6 +1233,31 @@ def pord(
     config: dict,
     logger: Optional[logging.Logger] = None,
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Process an ordinal variable and generate profiling information.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input dataset.
+    var : str
+        Ordinal variable to process.
+    vars2_ord : pd.DataFrame
+        Metadata table for ordinal variables.
+    overall_avg : float
+        Overall average of the dependent variable.
+    nobs : int
+        Number of observations.
+    config : dict
+        Configuration dictionary with options such as ``concrate`` and
+        ``num_category``.
+    logger : logging.Logger, optional
+        Optional logger for debug output.
+
+    Returns
+    -------
+    Tuple[pd.DataFrame, pd.DataFrame]
+        Updated ``vars2_ord`` and a profiling DataFrame for ``var``.
+    """
 
     dep_var = config["dep_var"]
     concrate = config.get("concrate", 0.9)
@@ -1132,6 +1335,27 @@ def ord_cntl(
     config: dict,
     logger: Optional[logging.Logger] = None,
 ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Controller for processing a list of ordinal variables.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input dataset.
+    ord_vars : list
+        Names of ordinal variables to process.
+    vars2_ord : pd.DataFrame
+        Metadata table for ordinal variables.
+    config : dict
+        Configuration dictionary passed to :func:`pord`.
+    logger : logging.Logger, optional
+        Optional logger for progress output.
+
+    Returns
+    -------
+    Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]
+        Updated ``vars2_ord``, profiling DataFrame and keep list for recoded
+        variables.
+    """
 
     path_output = config["path_output"]
     prefix = config.get("prefix", "R1_")
@@ -1230,6 +1454,30 @@ def pcont(
     config: dict,
     logger: Optional[logging.Logger] = None,
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Process a continuous variable using :func:`pnum` and profiling.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input dataset.
+    var : str
+        Continuous variable to process.
+    vars2_cont : pd.DataFrame
+        Metadata table for continuous variables.
+    overall_avg : float
+        Overall mean of the dependent variable.
+    nobs : int
+        Number of observations.
+    config : dict
+        Configuration dictionary.
+    logger : logging.Logger, optional
+        Optional logger for debug output.
+
+    Returns
+    -------
+    Tuple[pd.DataFrame, pd.DataFrame]
+        Updated ``vars2_cont`` and profiling DataFrame for ``var``.
+    """
 
     dep_var = config["dep_var"]
     profiling = config.get("profiling", "Y") == "Y"
@@ -1283,6 +1531,27 @@ def cont_cntl(
     config: dict,
     logger: Optional[logging.Logger] = None,
 ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Controller for processing continuous variables.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Input dataset.
+    cont_vars : list
+        Names of continuous variables to process.
+    vars2_cont : pd.DataFrame
+        Metadata table for continuous variables.
+    config : dict
+        Configuration dictionary passed to :func:`pcont`.
+    logger : logging.Logger, optional
+        Optional logger for progress output.
+
+    Returns
+    -------
+    Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]
+        Updated ``vars2_cont``, profiling DataFrame and keep list for recoded
+        variables.
+    """
 
     path_output = config["path_output"]
     prefix = config.get("prefix", "R1_")
