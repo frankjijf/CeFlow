@@ -10,6 +10,22 @@ __all__ = ["CE_Sampling"]
 def sample_option_1(
     inds: pd.DataFrame, samplesize: int, seed: Optional[int] = None
 ) -> pd.DataFrame:
+    """Return a random sample of rows without replacement.
+
+    Parameters
+    ----------
+    inds : pd.DataFrame
+        Source dataframe to sample from.
+    samplesize : int
+        Number of rows to draw.
+    seed : Optional[int]
+        Random seed for reproducibility.
+
+    Returns
+    -------
+    pd.DataFrame
+        The sampled subset.
+    """
 
     return inds.sample(n=samplesize, replace=False, random_state=seed)
 
@@ -17,6 +33,22 @@ def sample_option_1(
 def sample_option_2(
     inds: pd.DataFrame, samplesize: int, seed: Optional[int] = None
 ) -> pd.DataFrame:
+    """Ensure the output has exactly `samplesize` rows using replacement if necessary.
+
+    Parameters
+    ----------
+    inds : pd.DataFrame
+        DataFrame to sample from.
+    samplesize : int
+        Desired number of rows.
+    seed : Optional[int]
+        Random seed for reproducibility.
+
+    Returns
+    -------
+    pd.DataFrame
+        Sample of the requested size.
+    """
 
     orig = inds.copy()
     extra = samplesize - len(orig)
@@ -35,6 +67,30 @@ def sample_core(
     seed: Optional[int] = None,
     logger: Optional[logging.Logger] = None,
 ) -> pd.DataFrame:
+    """Sample responders and non-responders to meet a target response ratio.
+
+    Parameters
+    ----------
+    inds : pd.DataFrame
+        Source dataset with a binary response variable.
+    response_var : str
+        Name of the response variable column.
+    samplesize : int
+        Total number of rows to sample.
+    ratio : float
+        Desired response rate in the sample.
+    min_num_resp : int
+        Minimum number of responder rows to include.
+    seed : Optional[int]
+        Random seed for reproducibility.
+    logger : Optional[logging.Logger]
+        Optional logger for debug information.
+
+    Returns
+    -------
+    pd.DataFrame
+        Sampled dataframe meeting the ratio constraints.
+    """
 
     # 1. 计算最小 non-response
     min_nonresp = int((min_num_resp / ratio) - min_num_resp)
@@ -86,6 +142,20 @@ def sample_core(
 def CE_Sampling(
     config: dict, logger: Optional[logging.Logger] = None
 ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Split a dataset into model, validation and test partitions.
+
+    Parameters
+    ----------
+    config : dict
+        Configuration dictionary containing input DataFrame and sampling options.
+    logger : Optional[logging.Logger]
+        Logger for status and debug messages.
+
+    Returns
+    -------
+    Tuple[pd.DataFrame, pd.DataFrame]
+        The resampled dataset and a table of response rates by partition.
+    """
 
     outds_name = str(config.get("outds_name", "CE1_Resampled"))
     if logger:
