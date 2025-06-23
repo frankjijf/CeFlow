@@ -49,6 +49,14 @@ The interface allows you to upload a dataset (CSV or Excel) or use the provided
 Titanic sample located in `CE_PY_CODE/Titanic_test`. Follow the sidebar
 navigation to configure variables, run sampling and perform recoding. Outputs and
 logs are written to `streamlit_output/` by default.
+## Keeping the Repository Clean
+
+The folder `CE_PY_CODE/streamlit_output/` holds temporary outputs such as logs
+and recoded datasets. These files are generated when running the Streamlit
+application and should not be committed to Git. The `.gitignore` file at the
+repository root already excludes this directory. If you create additional
+runtime files, append their patterns to `.gitignore` to keep the history clean.
+
 
 ## Example Usage Without Streamlit
 
