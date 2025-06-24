@@ -60,7 +60,7 @@ config = {
     "weight": None,  # If you want to use weights, set this variable to the name of your weight variable
     # Macro 1: Sampling macro variables
     "split_portion": 0.7,  # Your split portion for modeling portion
-    "exclusion_if": "inds[dep_var].isna()",  # Data exclusion condition; set an actual condition if needed, e.g., "data[dep_var].notna()"
+    "exclusion_if": "inds[dep_var].isna()",  # Data exclusion condition; set an actual condition if needed, e.g., "inds[dep_var].isna()"
     "DS_present": "N",  # Change to 'Y' only if your data contains the standard DS modeling bundle
     # Optional Macro Variables: These all have defaults that can be used
     # General Macro Variables

@@ -1,2 +1,52 @@
 # Ignore Streamlit output results and logs
 CE_PY_CODE/streamlit_output/
+
+# === Python bytecode ===
+__pycache__/
+*.py[cod]
+*$py.class
+
+# === Virtual environments ===
+venv/
+env/
+.venv/
+ENV/
+.egg-info/
+.eggs/
+
+# === Logs and database files ===
+*.log
+*.sqlite3
+*.db
+.cache/
+*.pkl
+*.pickle
+
+# === Test outputs ===
+.pytest_cache/
+.nox/
+.tox/
+coverage.xml
+htmlcov/
+
+# === Jupyter Notebook checkpoints ===
+.ipynb_checkpoints/
+
+# === Editor settings ===
+.vscode/
+.idea/
+*.swp
+
+# === Build outputs ===
+build/
+dist/
+*.egg
+*.whl
+
+# === OS-specific files ===
+.DS_Store
+Thumbs.db
+
+# === Environment files ===
+.env
+.env.*
