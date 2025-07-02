@@ -2,11 +2,12 @@
 import pandas as pd
 import numpy as np
 import statsmodels.api as sm
-from typing import List, Optional, Dict, Any
+from typing import Tuple, List, Optional, Dict, Any
 import warnings
 from scipy.stats import chi2
 from numpy.linalg import eigh
 from pathlib import Path
+import logging
 
 def univ_reg(
     df: pd.DataFrame,
@@ -546,7 +547,6 @@ def single_group_log(
     df: pd.DataFrame,
     vlist: List[str],
     dep_var: str,
-    *,
     alphalog: float = 0.15,
     redu_weight: bool = False,
     weight: Optional[str] = None,
@@ -941,10 +941,11 @@ def maxx_corr(
 #                CE_Var_Redu – Master Reduction Flow
 # --------------------------------------------------------------------
 
-def ce_var_redu(
+def CE_Var_Redu(
     df: pd.DataFrame,
-    config: dict
-) -> Dict[str, Any]:
+    config: dict,
+    logger: Optional[logging.Logger] = None
+) -> Tuple[pd.DataFrame, list]:
     """End‑to‑end Python replica of SAS **%CE_Var_Redu**.
 
     Returns a dict containing:
@@ -956,38 +957,48 @@ def ce_var_redu(
     dep_var=config.get("dep_var")
     prefix=config.get("prefix")
     keep_list=config.get("keep_list")
-    binary_dv=config.get("binary_dv")
-    weight=config.get("weight")
-    redu_weight=config.get("redu_weight")
-    weight_is_freq=config.get("weight_is_freq")
-    # fast run & switches
-    fast_opt=config.get("fast_opt")
-    univ_reg_flg=config.get("univ_reg_flg")
-    correlation_flg=config.get("correlation_flg")
-    principal_flg=config.get("principal_flg")
-    cluster_flg=config.get("cluster_flg")
-    regression_flg=config.get("regression_flg")
-    logistic_flg=config.get("logistic_flg")
-    information_flg=config.get("information_flg")
-    ind_correlation_flg=config.get("ind_correlation_flg")
-    ind_dv_corr_flg=config.get("ind_dv_corr_flg")
-    # thresholds
-    samplesize=config.get("samplesize")
-    maxpuni=config.get("maxpuni")
-    corrcut=config.get("corrcut")
-    nprin=config.get("nprin")
-    minprin=config.get("minprin")
-    maxc=config.get("maxc")
-    maxratio=config.get("maxratio")
-    alphareg=config.get("alphareg")
-    alphalog=config.get("alphalog")
-    infvcut=config.get("infvcut")
-    decile=config.get("decile")
-    maxcorr=config.get("maxcorr")
-    max_dv_corr=config.get("max_dv_corr")
-    sources=config.get("sources")
+    binary_dv=config["binary_dv"].upper() == "Y"
     path_output=config.get("path_output")
     random_seed=config.get("random_seed")
+
+    fast_opt=config["fast_opt"].upper() == "Y"
+    samplesize=config.get("samplesize")
+
+    redu_weight=config["redu_weight"].upper() == "Y"
+    weight=config.get("weight","")
+    weight_is_freq=config["weight_is_freq"]
+
+    sources=config.get("sources")
+
+    univ_reg_flg=config["univ_reg_flg"].upper() == "Y"
+    maxpuni=config.get("maxpuni")
+
+    correlation_flg=config["correlation_flg"].upper() == "Y"
+    corrcut=config.get("corrcut")
+
+    principal_flg=config["principal_flg"].upper() == "Y"
+    nprin=config.get("nprin")
+    minprin=config.get("minprin")
+
+    cluster_flg=config["cluster_flg"].upper() == "Y"
+    maxc=config.get("maxc")
+    maxratio=config.get("maxratio")
+
+    regression_flg=config["regression_flg"].upper() == "Y"
+    alphareg=config.get("alphareg")
+
+    logistic_flg=config["logistic_flg"].upper() == "Y"
+    alphalog=config.get("alphalog")
+
+    information_flg=config["information_flg"].upper() == "Y"
+    infvcut=config.get("infvcut")
+    decile=config.get("decile")
+
+    ind_correlation_flg=config["ind_correlation_flg"].upper() == "Y"
+    maxcorr=config.get("maxcorr")
+
+    ind_dv_corr_flg=config["ind_dv_corr_flg"].upper() == "Y"
+    max_dv_corr=config.get("max_dv_corr")
 
     # --------------------------- FAST OPTION -------------------------- #
     if fast_opt:
@@ -1165,74 +1176,4 @@ def ce_var_redu(
         Path(path_output / "CE3_Varlist_redu.txt").write_text(
             "%let varlist_redu =\n" + " ".join(varlist_redu) + "\n;")
 
-    return {
-        "var_redu_df": master,
-        "varlist_redu": varlist_redu,
-        "stats_df": stats_df,
-    }
-
-
-# *** Macro 3: Variable Reduction macro variables ***
-config.update({
-    "fast_opt": False,                    # Fast option will turn off all tests except multivariate regression
-    "samplesize": 50000,                 # Sample size to use for variable reduction
-    "redu_weight": False,                # Use weights in variables reduction? (Y/N)
-    "sources": 3,                        # Minimum number of sources to be selected
-    # Univariate regression option
-    "univ_reg_flg": True,                    # Use univariate regression to choose variables? (Y/N)
-    "maxpuni": 0.0001,                   # Maximum p value correlation for selecting via univariate regression
-    # Correlation option
-    "correlation_flg": True,                 # Use correlation to choose variables? (Y/N)
-    "corrcut": 0.01,                     # Minimum correlation between independent variable and dependent variable
-    # Principal components option
-    "principal_flg": True,                   # Use principal components to choose variables? (Y/N)
-    "nprin": 10,                         # Number of principal components desired
-    "minprin": 0.5,                      # Minimum factor correlation for selecting via principal component
-    # Cluster option
-    "cluster_flg": True,                     # Use cluster analysis to choose variables? (Y/N)
-    "maxc": 20,                          # Number of clusters desired
-    "maxratio": 0.5,                     # Maximum R Squared ratio for selecting variables via clustering
-    # Linear regression option
-    "regression_flg": True,                  # Use linear regression to choose variables? (Y/N)
-    "alphareg": 0.05,                    # Alpha level for forward selection in linear regression
-    # Logistic regression option - only applicable if binary dependent variable
-    "logistic_flg": True,                    # Use logistic regression to choose variables? (Y/N)
-    "alphalog": 0.05,                    # Alpha level for forward selection in logistic regression
-    # Information value option
-    "information_flg": True,                 # Use information value to choose variables? (Y/N)
-    "decile": 20,                        # Number of groups to use when calculate information values
-    "infvcut": 0.01,                     # Minimum information value for selecting via information value
-    # Maximum correlation between independent variables option
-    "ind_correlation_flg": True,             # Exclude variables with high correlation to others? (Y/N)
-    "maxcorr": 0.7,                      # Maximum correlation allowed between independent variables
-    # Maximum correlation to dependent variable option
-    "ind_dv_corr_flg": True,                 # Exclude variables with high correlation to dependent variable? (Y/N)
-    "max_dv_corr": 0.7                   # Maximum correlation allowed to dependent variable
-})
-
-# ② 运行变量筛选
-result = ce_var_redu(
-    df=CE2_Recoded,
-    config=config
-)
-
-# ③ 查看结果
-print("↓最终选中变量↓")
-print(result["varlist_redu"])
-print("\n头 10 行合并表")
-print(result["var_redu_df"].head(10))
-
-
-
-
-
-*** 3.Variable reduction and ranking ***;
-%let LogFile = "&path_output.03_Var_Redu_Log_File.log";
-%let LstFile = "&path_output.03_Var_Redu_List_File.lst";
-proc printto log=&LogFile new; run;
-proc printto print=&LstFile new; run;
-
-%CE_Var_Redu(insdn=out.CE2_Recoded);
-
-proc printto;
-run;
+    return master, varlist_redu
