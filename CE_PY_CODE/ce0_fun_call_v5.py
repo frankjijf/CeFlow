@@ -57,7 +57,7 @@ config = {
     "id": "PassengerId",  # Unique ID
     "dep_var": "Survived",  # Your dependent variable
     "binary_dv": "Y",  # Your dependent variable type (Y/N)
-    "weight": None,  # If you want to use weights, set this variable to the name of your weight variable
+    "weight": "",  # If you want to use weights, set this variable to the name of your weight variable
     # Macro 1: Sampling macro variables
     "split_portion": 0.7,  # Your split portion for modeling portion
     "exclusion_if": "inds[dep_var].isna()",  # Data exclusion condition; set an actual condition if needed, e.g., "inds[dep_var].isna()"
@@ -65,7 +65,7 @@ config = {
     # Optional Macro Variables: These all have defaults that can be used
     # General Macro Variables
     "prefix": "R1_",  # Your variable recoding prefix
-    "keep_list": None,  # Add any additional variables you want to keep for analysis purposes
+    "keep_list": [],  # Add any additional variables you want to keep for analysis purposes
     # Macro 1: Sampling macro variables
     "path_DS": "/mnt/projects/shared/pst_qmgisi/Modeling/CE/",  # Location of standard DS recodes. Do not change
     "bootstrap": "Y",  # Request oversampling, bootstrap if responders size is small (Y/N). Binary DV only

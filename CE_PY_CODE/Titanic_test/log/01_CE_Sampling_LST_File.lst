@@ -1,9 +1,9 @@
-2025-06-22 17:38:24,051 INFO: === Start CE_Sampling (outds=CE1_Resampled) ===
-2025-06-22 17:38:24,051 INFO: Excluding 1 rows
-2025-06-22 17:38:24,051 INFO: Split: model=628, test=263
-2025-06-22 17:38:24,051 WARNING: Low resp; use min_num_resp=2000
-2025-06-22 17:38:24,051 INFO: Bootstrap spsize=20000, rr=0.1
-2025-06-22 17:38:24,064 INFO: Resampled model freq: {0.0: 18000, 1.0: 2000}
-2025-06-22 17:38:24,064 INFO: Marked 9929 rows as Validation
-2025-06-22 17:38:24,165 INFO: Wrote 20263 rows to CE1_Resampled.csv and sample-rate table
-2025-06-22 17:38:24,165 INFO: === End CE_Sampling (outds=CE1_Resampled) ===
+2025-07-01 21:37:26,226 INFO: === Start CE_Sampling (outds=CE1_Resampled) ===
+2025-07-01 21:37:26,227 INFO: Excluding 1 rows
+2025-07-01 21:37:26,229 INFO: Split: model=628, test=263
+2025-07-01 21:37:26,229 WARNING: Low resp; use min_num_resp=2000
+2025-07-01 21:37:26,229 INFO: Bootstrap spsize=20000, rr=0.1
+2025-07-01 21:37:26,239 INFO: Resampled model freq: {0.0: 18000, 1.0: 2000}
+2025-07-01 21:37:26,244 INFO: Marked 9929 rows as Validation
+2025-07-01 21:37:26,343 INFO: Wrote 20263 rows to CE1_Resampled.csv and sample-rate table
+2025-07-01 21:37:26,343 INFO: === End CE_Sampling (outds=CE1_Resampled) ===

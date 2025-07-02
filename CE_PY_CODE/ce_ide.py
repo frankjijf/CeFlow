@@ -24,7 +24,7 @@ if "step" not in state:
     state.step = 1
 
 # 侧边栏导航 标签
-step_labels = ["1. Load the dataset", "2. Variable Lists", "3. CE1", "4. CE2"]
+step_labels = ["1. Load The Dataset", "2. Variable Lists", "3. CE1 Sampling", "4. CE2 EDA & Var Recode"]
 # 渲染 radio，key 与 session_state 绑定，无需 index
 sel = st.sidebar.radio("Step", step_labels, key="sidebar_sel")
 # 根据侧边栏选择更新 step
@@ -398,5 +398,6 @@ elif state.step == 4:
                 )
                 with st.expander("查看 CE2 日志"):
                     st.code(open(state.log2, encoding="utf-8").read())
+                st.button("下一步: CE3 Var Reduce", on_click=go_to, args=(4,))
             else:
                 st.info("请在左侧填写参数并运行 CE2。")
