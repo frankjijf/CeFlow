@@ -92,12 +92,12 @@ def sample_core(
         Sampled dataframe meeting the ratio constraints.
     """
 
-    # 1. 计算最小 non-response
+    # 1. Compute minimum number of non-responses
     min_nonresp = int((min_num_resp / ratio) - min_num_resp)
     if logger:
         logger.debug(f"min_num_nonresp = {min_nonresp}")
 
-    # 2. 计算 n1, n2 并边界校正
+    # 2. Compute n1 and n2 with boundary correction
     n1 = int(samplesize * ratio)
     n2 = samplesize - n1
     if n1 < min_num_resp:
@@ -109,7 +109,7 @@ def sample_core(
             logger.warning(f"Too few non-responses; set n2 = {min_nonresp}")
         n2 = min_nonresp
 
-    # 3. 分组 responders / non-responders
+    # 3. Split responders and non-responders
     df_resp = inds[inds[response_var] > 0]
     df_non = inds[inds[response_var] <= 0]
     if logger:
@@ -117,7 +117,7 @@ def sample_core(
             f"Original responders: {len(df_resp)}, non-responders: {len(df_non)}"
         )
 
-    # 4. 采样或复制
+    # 4. Sample or copy rows as needed
     if len(df_resp) == n1:
         _out1 = df_resp.copy()
     elif len(df_resp) > n1:
@@ -132,7 +132,7 @@ def sample_core(
     else:
         _out2 = sample_option_2(df_non, n2, seed)
 
-    # 5. 合并输出
+    # 5. Combine the sampled subsets
     result = pd.concat([_out1, _out2], ignore_index=True)
     if logger:
         logger.debug(f"Sampled total rows = {len(result)}")
@@ -223,7 +223,7 @@ def CE_Sampling(
     outds = pd.concat([mod, test], ignore_index=True)
     rng2 = np.random.RandomState(seed + 1 if seed is not None else None)
     idx_mod = outds[outds["mod_val_test"] == 1].index
-    # 按 50% ranuni 随机分配 Val
+    # Randomly assign 50% of model rows to validation
     val_mask = rng2.rand(len(idx_mod)) > 0.5
     val_idx = idx_mod[val_mask]
     outds.loc[val_idx, "mod_val_test"] = 2

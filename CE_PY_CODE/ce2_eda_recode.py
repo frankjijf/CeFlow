@@ -149,7 +149,7 @@ def pnum(
                 "Prob": p,
                 "Stat": stat,
             }
-        #            wald = res.wald_test_terms().statistic  # 近似 WaldChiSq
+        #            wald = res.wald_test_terms().statistic  # approximate WaldChiSq
         #            p_wald = res.pvalues[col]              # ProbChiSq
         #            auc = roc_auc_score(y, res.predict(df_x))
         #            stats_map[col].update({"WaldChiSq": wald, "ProbChiSq": p_wald, "CValue": auc})
@@ -181,7 +181,8 @@ def pnum(
         )
     pref = "" if best_col == var else best_col[:3]
 
-    # 9. ER impute 要保证你是用 dropna() 后的子集。如果你的 df 里 dep_var 也有缺失，就会拿到不同的分母。
+    # 9. For ER imputation ensure you use the dropna() subset; otherwise the denominator
+    #    may differ when dep_var also has missing values.
     nmiss = df[var].isna().sum()
     ck = nmiss - min_size < 0
     ckP = best["Prob"] > 0.05
@@ -236,10 +237,10 @@ def pnum(
 
     for col in target_cols:
         if col in vars2.columns:
-            # 已存在就只改 dtype，不动原值
+            # If the column exists only change dtype without touching values
             vars2[col] = vars2[col].astype("string")
         else:
-            # 不存在就新建一整列，值全设为 pd.NA，并用 StringDtype
+            # If missing create a full column of pd.NA with StringDtype
             vars2[col] = pd.Series(pd.NA, index=vars2.index, dtype="string")
 
     cond = vars2["name"] == var
@@ -264,13 +265,13 @@ def pnum(
     py_fname = f"CE2_{'Continuous' if typ.upper()=='C' else 'Ordinal'}_Var_Recode.py"
     recode_py = os.path.join(path_output, py_fname)
 
-    # 2) 打开文件开始写
+    # 2) Open file and begin writing
     with open(recode_py, "a", encoding="utf-8") as f:
         f.write(f"# --- Recode variable: {var} ---\n")
-        # 3) Missing imputation: 显式 IF/ELSE
-        #    对缺失
+        # 3) Missing imputation: explicit IF/ELSE
+        #    For missing values
         f.write(f"df.loc[df['{var}'].isna(), '{prefix}{var}'] = {var_miss}\n")
-        #    对非缺失
+        #    For non-missing values
         f.write(f"df.loc[df['{var}'].notna(), '{prefix}{var}'] = df['{var}']\n")
         # 4) Capping/Flooring
         if cap_flrO:
@@ -278,11 +279,11 @@ def pnum(
                 f"df['{prefix}{var}'] = "
                 f"df['{prefix}{var}'].clip(lower={var_lb}, upper={var_ub})\n"
             )
-        # 5) 按最佳 transform 生成新列
+        # 5) Create new column using the best transform
         if pref:  # e.g. 'SQ_', 'LN_', etc.
-            # 新列名
+            # New column name
             new_col = f"{prefix}{pref}{var}"
-            # 表达式
+            # Expression
             expr = {
                 "SQ_": f"df['{prefix}{var}']**2",
                 "SR_": f"np.sqrt(np.maximum(df['{prefix}{var}'], 0))",
@@ -1879,17 +1880,17 @@ def CE_EDA_Recode(
     # 8. Apply recode to entire dataset (ensuring new_vars exist)
     recoded = workfile.copy()
     for script in glob.glob(os.path.join(path_output, "CE2_*_Var_Recode.py")):
-        # 把脚本读进来
+        # Load the script
         code = open(script, "r", encoding="utf-8").read()
-        # 在 recoded DataFrame 上执行
-        # 保证 df 名称一致，并且 np 也可用
+        # Execute on the recoded DataFrame
+        # Ensure the DataFrame name matches and np is available
         local_vars = {"df": recoded, "np": np, "nan": np.nan}
         exec(code, local_vars)
-        # 更新 recoded，确保新变量被加入
+        # Update recoded so new variables are included
         recoded = local_vars["df"]
         exec(code, {"df": recoded, "np": np, "nan": np.nan})
 
-    # 然后就能选出所有新变量
+    # Now all new variables can be selected
     keep_list = config.get("keep_list", [])
     base_keep = [id, "mod_val_test", dep_var]
     all_new = (
@@ -1900,7 +1901,7 @@ def CE_EDA_Recode(
     )
     CE2_Recoded = recoded[base_keep + keep_list + all_new].copy()
 
-    # —— 4. 生成各类变量的 summary，然后输出到 Excel 不同 sheet ——
+    # 4. Generate summaries for each variable type and output to separate Excel sheets
     report_path = os.path.join(path_output, "CE2_EDA_report.xlsx")
     with pd.ExcelWriter(report_path, engine="xlsxwriter") as writer:
         # 4.1 Binary
