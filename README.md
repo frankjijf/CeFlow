@@ -33,12 +33,19 @@ CE_PY_CODE/       Core modules and the main Streamlit application.
 The directory `streamlit_output/` (created at runtime) holds results and logs
 when running the Streamlit app.
 
+
 ## Requirements
 
-Python 3.8 or later is recommended. Install dependencies with
+Python 3.8 or later is recommended.
 
+Install main dependencies:
 ```bash
 pip install -r requirements.txt
+```
+
+For development and testing tools (black, flake8, pytest):
+```bash
+pip install -r requirements-dev.txt
 ```
 
 ## Running the Streamlit Application
@@ -74,9 +81,11 @@ from CE_PY_CODE.ce3_var_redu import CE_Var_Redu
 
 Each function accepts a configuration dictionary; see the source code for
 details.
+
+
 ## Development
 
-Run `pytest` to execute the tests. Code style is enforced with `black` and `flake8`.
+Run `pytest` to execute the tests. Code style is enforced with `black` and `flake8`. It is recommended to install requirements-dev.txt first.
 
 
 ## License
