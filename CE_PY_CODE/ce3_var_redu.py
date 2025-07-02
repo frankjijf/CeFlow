@@ -1152,10 +1152,12 @@ def CE_Var_Redu(
         master["drop_dv_corr"] = np.where(master["dv_corr"] > max_dv_corr, "Y", "")
 
     # ----------------------- 14. FINAL SORT --------------------------- #
+
     sort_cols = ["num_sources"] + (["infv"] if information_flg else [])
     master = master.sort_values(sort_cols, ascending=[False] * len(sort_cols)).reset_index(drop=True)
 
     # ----------------------- 15. SELECTED VAR LIST -------------------- #
+
     sel_mask = master["num_sources"] >= sources
     if logistic_flg and binary_dv:
         sel_mask |= master["logsource"] == 1
@@ -1166,14 +1168,18 @@ def CE_Var_Redu(
     if ind_dv_corr_flg:
         sel_mask &= (master["drop_dv_corr"].isna() | (master["drop_dv_corr"] == ""))
 
+
     varlist_redu = master.loc[sel_mask, "variable"].tolist()
 
     # ----------------------- 16. OUTPUT FILES ------------------------- #
+
     if path_output is not None:
         path_output = Path(path_output)
         path_output.mkdir(parents=True, exist_ok=True)
         master.to_excel(path_output / "CE3_Var_Redu Results.xlsx", index=False)
         Path(path_output / "CE3_Varlist_redu.txt").write_text(
-            "%let varlist_redu =\n" + " ".join(varlist_redu) + "\n;")
+            "%let varlist_redu =\n" + " ".join(varlist_redu) + "\n;"
+        )
+
 
     return master, varlist_redu

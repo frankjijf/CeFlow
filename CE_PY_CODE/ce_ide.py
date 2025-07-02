@@ -1,4 +1,9 @@
-"""Streamlit interface for CeFlow pipeline."""
+
+
+"""
+Streamlit interface for CeFlow pipeline.
+"""
+
 
 import os
 import sys
@@ -6,9 +11,13 @@ import pandas as pd
 import numpy as np
 import streamlit as st
 
+
+
 # Add CE_PY_CODE to search path
 BASE_DIR = os.path.dirname(__file__)
 sys.path.append(os.path.join(BASE_DIR, "CE_PY_CODE"))
+
+
 
 from ce1_sampling import CE_Sampling
 from ce2_eda_recode import CE_EDA_Recode
@@ -16,13 +25,18 @@ from ce3_var_redu import CE_Var_Redu
 from ce_log_tool import printto
 from functools import partial
 
+
+
 # Streamlit page configuration
 st.set_page_config(page_title="CeFlow", layout="wide")
+
+
 
 # Initialize session_state
 state = st.session_state
 if "step" not in state:
     state.step = 1
+
 
 # Sidebar navigation labels
 step_labels = [
@@ -426,7 +440,7 @@ elif state.step == 4:
                 os.makedirs(log_dir, exist_ok=True)
                 log2 = os.path.join(log_dir, "02_CE_EDA_Recode_Log_File.log")
                 lst2 = os.path.join(log_dir, "02_CE_EDA_Recode_LST_File.lst")
-                config2 = state.get("config")
+                config2 = state.get("config", {})
                 config2.update(
                     {
                         "inds": sampled,
@@ -491,221 +505,221 @@ elif state.step == 4:
 elif state.step == 5:
     st.header("Step 5: CE3 Var Reduce", divider=True)
     rec = state.get("recoded_df")
-    #    if rec is None:
-    #        st.warning("Please complete CE2 sampling first")
-    #    else:
-    left, right = st.columns([1, 2], border=True)
-    with left:
-        with st.form("ce3_form", border=False):
-            st.subheader("Variable Reduction macro variables", divider=True)
+    if rec is None:
+        st.warning("Please complete CE2 sampling first")
+    else:
+        left, right = st.columns([1, 2], border=True)
+        with left:
+            with st.form("ce3_form", border=False):
+                st.subheader("Variable Reduction macro variables", divider=True)
 
-            label_out_dir = """**PATH_OUTPUT**  
-            :blue-background[Your output destination folder]"""
-            out_dir = st.text_input(
-                label_out_dir, os.path.join(BASE_DIR, "streamlit_output")
-            )
-
-            label_fast_opt = """**FAST_OPT**  
-            :blue-background[Fast option will turn off all tests except multivariate regression]"""
-            fast_opt = st.pills(label_fast_opt, ["Y", "N"], default="N", key="fast_opt")
-
-            with st.expander(
-                "Optional Macro Variables: These all have defaults that can be used",
-                expanded=False,
-            ):
-                label_samplesize = """**SAMPLESIZE**  
-                :blue-background[Request profiling report on all variables (Y/N)]"""
-                samplesize = st.number_input(
-                    label_samplesize, value=50000, key="samplesize"
+                label_out_dir = """**PATH_OUTPUT**  
+                :blue-background[Your output destination folder]"""
+                out_dir = st.text_input(
+                    label_out_dir, os.path.join(BASE_DIR, "streamlit_output")
                 )
 
-                label_redu_weight = """**REDU_WEIGHT**  
-                :blue-background[Use weights in variables reduction? (Y/N)]"""
-                redu_weight = st.pills(
-                    label_redu_weight, ["Y", "N"], default="N", key="redu_weight"
-                )
+                label_fast_opt = """**FAST_OPT**  
+                :blue-background[Fast option will turn off all tests except multivariate regression]"""
+                fast_opt = st.pills(label_fast_opt, ["Y", "N"], default="N", key="fast_opt")
 
-                label_sources = """**SOURCES**  
-                :blue-background[Minimum number of sources to be selected]"""
-                sources = st.number_input(label_sources, value=3, key="sources")
+                with st.expander(
+                    "Optional Macro Variables: These all have defaults that can be used",
+                    expanded=False,
+                ):
+                    label_samplesize = """**SAMPLESIZE**  
+                    :blue-background[Request profiling report on all variables (Y/N)]"""
+                    samplesize = st.number_input(
+                        label_samplesize, value=50000, key="samplesize"
+                    )
 
-                st.markdown("##### :rainbow[**Univariate regression option**]")
-                label_univ_reg_flg = """**UNIV_REG_FLG**  
-                :blue-background[Use univariate regression to choose variables? (Y/N)]"""
-                univ_reg_flg = st.pills(
-                    label_univ_reg_flg, ["Y", "N"], default="Y", key="univ_reg_flg"
-                )
-                label_maxpuni = """**MAXPUNI**  
-                :blue-background[Maximum p value correlation for selecting via univariate regression]"""
-                maxpuni = st.number_input(label_maxpuni, value=0.0001, key="maxpuni")
+                    label_redu_weight = """**REDU_WEIGHT**  
+                    :blue-background[Use weights in variables reduction? (Y/N)]"""
+                    redu_weight = st.pills(
+                        label_redu_weight, ["Y", "N"], default="N", key="redu_weight"
+                    )
 
-                st.markdown("##### :rainbow[**Correlation option**]")
-                label_correlation_flg = """**CORRELATION_FLG**  
-                :blue-background[Use correlation to choose variables? (Y/N)]"""
-                correlation_flg = st.pills(
-                    label_correlation_flg,
-                    ["Y", "N"],
-                    default="Y",
-                    key="correlation_flg",
-                )
-                label_corrcut = """**CORRCUT**  
-                :blue-background[Minimum correlation between independent variable and dependent variable]"""
-                corrcut = st.number_input(label_corrcut, value=0.01, key="corrcut")
+                    label_sources = """**SOURCES**  
+                    :blue-background[Minimum number of sources to be selected]"""
+                    sources = st.number_input(label_sources, value=3, key="sources")
 
-                st.markdown("##### :rainbow[**Principal components option**]")
-                label_principal_flg = """**PRINCIPAL_FLG**  
-                :blue-background[Use principal components to choose variables? (Y/N)]"""
-                principal_flg = st.pills(
-                    label_principal_flg, ["Y", "N"], default="Y", key="principal_flg"
-                )
-                label_nprin = """**NPRIN**  
-                :blue-background[Number of principal components desired]"""
-                nprin = st.number_input(label_nprin, value=10, key="nprin")
-                label_minprin = """**MINPRIN**  
-                :blue-background[Minimum factor correlation for selecting via principal component]"""
-                minprin = st.number_input(label_minprin, value=0.5, key="minprin")
+                    st.markdown("##### :rainbow[**Univariate regression option**]")
+                    label_univ_reg_flg = """**UNIV_REG_FLG**  
+                    :blue-background[Use univariate regression to choose variables? (Y/N)]"""
+                    univ_reg_flg = st.pills(
+                        label_univ_reg_flg, ["Y", "N"], default="Y", key="univ_reg_flg"
+                    )
+                    label_maxpuni = """**MAXPUNI**  
+                    :blue-background[Maximum p value correlation for selecting via univariate regression]"""
+                    maxpuni = st.number_input(label_maxpuni, value=0.0001, key="maxpuni")
 
-                st.markdown("##### :rainbow[**Cluster option**]")
-                label_cluster_flg = """**CLUSTER_FLG**  
-                :blue-background[Use cluster analysis to choose variables? (Y/N)]"""
-                cluster_flg = st.pills(
-                    label_cluster_flg, ["Y", "N"], default="Y", key="cluster_flg"
-                )
-                label_maxc = """**MAXC**  
-                :blue-background[Number of clusters desired]"""
-                maxc = st.number_input(label_maxc, value=20, key="maxc")
-                label_maxratio = """**MAXRATIO**  
-                :blue-background[Maximum R Squared ratio for selecting variables via clustering]"""
-                maxratio = st.number_input(label_maxratio, value=0.5, key="maxratio")
+                    st.markdown("##### :rainbow[**Correlation option**]")
+                    label_correlation_flg = """**CORRELATION_FLG**  
+                    :blue-background[Use correlation to choose variables? (Y/N)]"""
+                    correlation_flg = st.pills(
+                        label_correlation_flg,
+                        ["Y", "N"],
+                        default="Y",
+                        key="correlation_flg",
+                    )
+                    label_corrcut = """**CORRCUT**  
+                    :blue-background[Minimum correlation between independent variable and dependent variable]"""
+                    corrcut = st.number_input(label_corrcut, value=0.01, key="corrcut")
 
-                st.markdown("##### :rainbow[**Linear regression option**]")
-                label_regression_flg = """**REGRESSION_FLG**  
-                :blue-background[Use linear regression to choose variables? (Y/N)]"""
-                regression_flg = st.pills(
-                    label_regression_flg, ["Y", "N"], default="Y", key="regression_flg"
-                )
-                label_alphareg = """**ALPHAREG**  
-                :blue-background[Alpha level for forward selection in linear regression]"""
-                alphareg = st.number_input(label_alphareg, value=0.05, key="alphareg")
+                    st.markdown("##### :rainbow[**Principal components option**]")
+                    label_principal_flg = """**PRINCIPAL_FLG**  
+                    :blue-background[Use principal components to choose variables? (Y/N)]"""
+                    principal_flg = st.pills(
+                        label_principal_flg, ["Y", "N"], default="Y", key="principal_flg"
+                    )
+                    label_nprin = """**NPRIN**  
+                    :blue-background[Number of principal components desired]"""
+                    nprin = st.number_input(label_nprin, value=10, key="nprin")
+                    label_minprin = """**MINPRIN**  
+                    :blue-background[Minimum factor correlation for selecting via principal component]"""
+                    minprin = st.number_input(label_minprin, value=0.5, key="minprin")
 
-                st.markdown(
-                    "##### :rainbow[**Logistic regression option - only applicable if binary dependent variable**]"
-                )
-                label_logistic_flg = """**LOGISTIC_FLG**  
-                :blue-background[Use logistic regression to choose variables? (Y/N)]"""
-                logistic_flg = st.pills(
-                    label_logistic_flg, ["Y", "N"], default="Y", key="logistic_flg"
-                )
-                label_alphalog = """**ALPHALOG**  
-                :blue-background[Alpha level for forward selection in logistic regression]"""
-                alphalog = st.number_input(label_alphalog, value=0.05, key="alphalog")
+                    st.markdown("##### :rainbow[**Cluster option**]")
+                    label_cluster_flg = """**CLUSTER_FLG**  
+                    :blue-background[Use cluster analysis to choose variables? (Y/N)]"""
+                    cluster_flg = st.pills(
+                        label_cluster_flg, ["Y", "N"], default="Y", key="cluster_flg"
+                    )
+                    label_maxc = """**MAXC**  
+                    :blue-background[Number of clusters desired]"""
+                    maxc = st.number_input(label_maxc, value=20, key="maxc")
+                    label_maxratio = """**MAXRATIO**  
+                    :blue-background[Maximum R Squared ratio for selecting variables via clustering]"""
+                    maxratio = st.number_input(label_maxratio, value=0.5, key="maxratio")
 
-                st.markdown("##### :rainbow[**Information value option**]")
-                label_information_flg = """**INFORMATION_FLG**  
-                :blue-background[Use information value to choose variables? (Y/N)]"""
-                information_flg = st.pills(
-                    label_information_flg,
-                    ["Y", "N"],
-                    default="Y",
-                    key="information_flg",
-                )
-                label_decile = """**DECILE**  
-                :blue-background[Number of groups to use when calculate information values]"""
-                decile = st.number_input(label_decile, value=20, key="decile")
-                label_infvcut = """**INFVCUT**  
-                :blue-background[Minimum information value for selecting via information value]"""
-                infvcut = st.number_input(label_infvcut, value=0.01, key="infvcut")
+                    st.markdown("##### :rainbow[**Linear regression option**]")
+                    label_regression_flg = """**REGRESSION_FLG**  
+                    :blue-background[Use linear regression to choose variables? (Y/N)]"""
+                    regression_flg = st.pills(
+                        label_regression_flg, ["Y", "N"], default="Y", key="regression_flg"
+                    )
+                    label_alphareg = """**ALPHAREG**  
+                    :blue-background[Alpha level for forward selection in linear regression]"""
+                    alphareg = st.number_input(label_alphareg, value=0.05, key="alphareg")
 
-                st.markdown(
-                    "##### :rainbow[**Maximum correlation between independent variables option**]"
-                )
-                label_ind_correlation_flg = """**IND_CORRELATION_FLG**  
-                :blue-background[Exclude variables with high correlation to others? (Y/N)]"""
-                ind_correlation_flg = st.pills(
-                    label_ind_correlation_flg,
-                    ["Y", "N"],
-                    default="Y",
-                    key="ind_correlation_flg",
-                )
-                label_maxcorr = """**MAXCORR**  
-                :blue-background[Maximum correlation allowed between independent variables]"""
-                maxcorr = st.number_input(label_maxcorr, value=0.7, key="maxcorr")
+                    st.markdown(
+                        "##### :rainbow[**Logistic regression option - only applicable if binary dependent variable**]"
+                    )
+                    label_logistic_flg = """**LOGISTIC_FLG**  
+                    :blue-background[Use logistic regression to choose variables? (Y/N)]"""
+                    logistic_flg = st.pills(
+                        label_logistic_flg, ["Y", "N"], default="Y", key="logistic_flg"
+                    )
+                    label_alphalog = """**ALPHALOG**  
+                    :blue-background[Alpha level for forward selection in logistic regression]"""
+                    alphalog = st.number_input(label_alphalog, value=0.05, key="alphalog")
 
-                st.markdown(
-                    "##### :rainbow[**Maximum correlation to dependent variable option**]"
-                )
-                label_ind_dv_corr_flg = """**IND_DV_CORR_FLG**  
-                :blue-background[Exclude variables with high correlation to dependent variable? (Y/N)]"""
-                ind_dv_corr_flg = st.pills(
-                    label_ind_dv_corr_flg,
-                    ["Y", "N"],
-                    default="Y",
-                    key="ind_dv_corr_flg",
-                )
-                label_max_dv_corr = """**MAX_DV_CORR**  
-                :blue-background[Maximum correlation allowed to dependent variable]"""
-                max_dv_corr = st.number_input(
-                    label_max_dv_corr, value=0.7, key="max_dv_corr"
-                )
+                    st.markdown("##### :rainbow[**Information value option**]")
+                    label_information_flg = """**INFORMATION_FLG**  
+                    :blue-background[Use information value to choose variables? (Y/N)]"""
+                    information_flg = st.pills(
+                        label_information_flg,
+                        ["Y", "N"],
+                        default="Y",
+                        key="information_flg",
+                    )
+                    label_decile = """**DECILE**  
+                    :blue-background[Number of groups to use when calculate information values]"""
+                    decile = st.number_input(label_decile, value=20, key="decile")
+                    label_infvcut = """**INFVCUT**  
+                    :blue-background[Minimum information value for selecting via information value]"""
+                    infvcut = st.number_input(label_infvcut, value=0.01, key="infvcut")
 
-            submitted3 = st.form_submit_button("Run CE3")
-        if submitted3:
-            os.makedirs(out_dir, exist_ok=True)
-            log_dir = os.path.join(out_dir, "log")
-            os.makedirs(log_dir, exist_ok=True)
-            log3 = os.path.join(log_dir, "03_CE_Var_Reduce_Log_File.log")
-            lst3 = os.path.join(log_dir, "03_CE_Var_Reduce_LST_File.lst")
-            config3 = state.get("config")
-            config3.update(
-                {
-                    "fast_opt": fast_opt,
-                    "samplesize": samplesize,
-                    "redu_weight": redu_weight,
-                    "sources": sources,
-                    "univ_reg_flg": univ_reg_flg,
-                    "maxpuni": maxpuni,
-                    "correlation_flg": correlation_flg,
-                    "corrcut": corrcut,
-                    "principal_flg": principal_flg,
-                    "nprin": nprin,
-                    "minprin": minprin,
-                    "cluster_flg": cluster_flg,
-                    "maxc": maxc,
-                    "maxratio": maxratio,
-                    "regression_flg": regression_flg,
-                    "alphareg": alphareg,
-                    "logistic_flg": logistic_flg,
-                    "alphalog": alphalog,
-                    "information_flg": information_flg,
-                    "decile": decile,
-                    "infvcut": infvcut,
-                    "ind_correlation_flg": ind_correlation_flg,
-                    "maxcorr": maxcorr,
-                    "ind_dv_corr_flg": ind_dv_corr_flg,
-                    "max_dv_corr": max_dv_corr,
-                    "ind_correlation_flg": ind_correlation_flg,
-                    "maxcorr": maxcorr,
-                    "ind_dv_corr_flg": ind_dv_corr_flg,
-                    "max_dv_corr": max_dv_corr,
-                    "weight_is_freq": False,
-                }
-            )
-            with printto(log=log3, lst=lst3) as logger:
-                var_redu_df, varlist_redu = CE_Var_Redu(
-                    df=rec, config=config3, logger=logger
+                    st.markdown(
+                        "##### :rainbow[**Maximum correlation between independent variables option**]"
+                    )
+                    label_ind_correlation_flg = """**IND_CORRELATION_FLG**  
+                    :blue-background[Exclude variables with high correlation to others? (Y/N)]"""
+                    ind_correlation_flg = st.pills(
+                        label_ind_correlation_flg,
+                        ["Y", "N"],
+                        default="Y",
+                        key="ind_correlation_flg",
+                    )
+                    label_maxcorr = """**MAXCORR**  
+                    :blue-background[Maximum correlation allowed between independent variables]"""
+                    maxcorr = st.number_input(label_maxcorr, value=0.7, key="maxcorr")
+
+                    st.markdown(
+                        "##### :rainbow[**Maximum correlation to dependent variable option**]"
+                    )
+                    label_ind_dv_corr_flg = """**IND_DV_CORR_FLG**  
+                    :blue-background[Exclude variables with high correlation to dependent variable? (Y/N)]"""
+                    ind_dv_corr_flg = st.pills(
+                        label_ind_dv_corr_flg,
+                        ["Y", "N"],
+                        default="Y",
+                        key="ind_dv_corr_flg",
+                    )
+                    label_max_dv_corr = """**MAX_DV_CORR**  
+                    :blue-background[Maximum correlation allowed to dependent variable]"""
+                    max_dv_corr = st.number_input(
+                        label_max_dv_corr, value=0.7, key="max_dv_corr"
+                    )
+
+                submitted3 = st.form_submit_button("Run CE3")
+            if submitted3:
+                os.makedirs(out_dir, exist_ok=True)
+                log_dir = os.path.join(out_dir, "log")
+                os.makedirs(log_dir, exist_ok=True)
+                log3 = os.path.join(log_dir, "03_CE_Var_Reduce_Log_File.log")
+                lst3 = os.path.join(log_dir, "03_CE_Var_Reduce_LST_File.lst")
+                config3 = state.get("config", {})
+                config3.update(
+                    {
+                        "fast_opt": fast_opt,
+                        "samplesize": samplesize,
+                        "redu_weight": redu_weight,
+                        "sources": sources,
+                        "univ_reg_flg": univ_reg_flg,
+                        "maxpuni": maxpuni,
+                        "correlation_flg": correlation_flg,
+                        "corrcut": corrcut,
+                        "principal_flg": principal_flg,
+                        "nprin": nprin,
+                        "minprin": minprin,
+                        "cluster_flg": cluster_flg,
+                        "maxc": maxc,
+                        "maxratio": maxratio,
+                        "regression_flg": regression_flg,
+                        "alphareg": alphareg,
+                        "logistic_flg": logistic_flg,
+                        "alphalog": alphalog,
+                        "information_flg": information_flg,
+                        "decile": decile,
+                        "infvcut": infvcut,
+                        "ind_correlation_flg": ind_correlation_flg,
+                        "maxcorr": maxcorr,
+                        "ind_dv_corr_flg": ind_dv_corr_flg,
+                        "max_dv_corr": max_dv_corr,
+                        "ind_correlation_flg": ind_correlation_flg,
+                        "maxcorr": maxcorr,
+                        "ind_dv_corr_flg": ind_dv_corr_flg,
+                        "max_dv_corr": max_dv_corr,
+                        "weight_is_freq": False,
+                    }
                 )
-            state.config = config3
-            state.var_redu_df = var_redu_df
-            state.varlist_redu = varlist_redu
-            state.log3 = log3
-            state.lst3 = lst3
-    with right:
-        if "var_redu_df" in state:
-            st.subheader("var_redu_df", divider=True)
-            st.dataframe(state.var_redu_df)
-            st.subheader("varlist_redu", divider=True)
-            st.dataframe(state.varlist_redu)
-            with st.expander("CE3 Log"):
-                st.code(open(state.log3, encoding="utf-8").read())
-        else:
-            st.info("Fill parameters on the left and run CE3.")
+                with printto(log=log3, lst=lst3) as logger:
+                    var_redu_df, varlist_redu = CE_Var_Redu(
+                        df=rec, config=config3, logger=logger
+                    )
+                state.config = config3
+                state.var_redu_df = var_redu_df
+                state.varlist_redu = varlist_redu
+                state.log3 = log3
+                state.lst3 = lst3
+        with right:
+            if "var_redu_df" in state:
+                st.subheader("var_redu_df", divider=True)
+                st.dataframe(state.var_redu_df)
+                st.subheader("varlist_redu", divider=True)
+                st.dataframe(state.varlist_redu)
+                with st.expander("CE3 Log"):
+                    st.code(open(state.log3, encoding="utf-8").read())
+            else:
+                st.info("Fill parameters on the left and run CE3.")
