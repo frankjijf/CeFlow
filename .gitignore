@@ -1,6 +1,6 @@
 # Ignore Streamlit output results and logs
 CE_PY_CODE/streamlit_output/
-CE_PY_CODE/Titanic_test/
+CE_PY_CODE/Titanic_test/*
 
 # === Python bytecode ===
 __pycache__/
