@@ -1,5 +1,4 @@
 # Ignore Streamlit output results and logs
-tests/*
 
 # === Python bytecode ===
 __pycache__/
