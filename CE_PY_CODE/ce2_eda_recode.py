@@ -1902,42 +1902,42 @@ def CE_EDA_Recode(
     CE2_Recoded = recoded[base_keep + keep_list + all_new].copy()
 
     # 4. Generate summaries for each variable type and output to separate Excel sheets
-    report_path = os.path.join(path_output, "CE2_EDA_report.xlsx")
-    with pd.ExcelWriter(report_path, engine="xlsxwriter") as writer:
-        # 4.1 Binary
-        if not vars2_bin.empty:
-            vars2_bin[vars2_bin["overall_good"] == 1].to_excel(
-                writer, sheet_name="Binary Variables", index=False
-            )
-        # 4.2 Nominal
-        if not vars2_nom.empty:
-            vars2_nom[vars2_nom["overall_good"] == 1].to_excel(
-                writer, sheet_name="Nominal Variables", index=False
-            )
-        # 4.3 Ordinal
-        if not vars2_ord.empty:
-            vars2_ord[vars2_ord["overall_good"] == 1].to_excel(
-                writer, sheet_name="Ordinal Variables", index=False
-            )
-        # 4.4 Continuous
-        if not vars2_cont.empty:
-            vars2_cont[vars2_cont["overall_good"] == 1].to_excel(
-                writer, sheet_name="Continuous Variables", index=False
-            )
-        # 4.5 Correlation
-        if dep_var in CE2_Recoded.columns and pd.api.types.is_numeric_dtype(
-            CE2_Recoded[dep_var]
-        ):
-            corr = (
-                CE2_Recoded.corr()[dep_var]
-                .drop(dep_var)
-                .sort_values(key=lambda s: s.abs(), ascending=False)
-            )
-            corr_df = corr.reset_index().rename(
-                columns={"index": "variable", dep_var: "correlation"}
-            )
-        else:
-            corr_df = pd.DataFrame(columns=["variable", "correlation"])
-        corr_df.to_excel(writer, sheet_name="Correlations", index=False)
+    # report_path = os.path.join(path_output, "CE2_EDA_report.xlsx")
+    # with pd.ExcelWriter(report_path, engine="xlsxwriter") as writer:
+    #     # 4.1 Binary
+    #     if not vars2_bin.empty:
+    #         vars2_bin[vars2_bin["overall_good"] == 1].to_excel(
+    #             writer, sheet_name="Binary Variables", index=False
+    #         )
+    #     # 4.2 Nominal
+    #     if not vars2_nom.empty:
+    #         vars2_nom[vars2_nom["overall_good"] == 1].to_excel(
+    #             writer, sheet_name="Nominal Variables", index=False
+    #         )
+    #     # 4.3 Ordinal
+    #     if not vars2_ord.empty:
+    #         vars2_ord[vars2_ord["overall_good"] == 1].to_excel(
+    #             writer, sheet_name="Ordinal Variables", index=False
+    #         )
+    #     # 4.4 Continuous
+    #     if not vars2_cont.empty:
+    #         vars2_cont[vars2_cont["overall_good"] == 1].to_excel(
+    #             writer, sheet_name="Continuous Variables", index=False
+    #         )
+    #     # 4.5 Correlation
+    #     if dep_var in CE2_Recoded.columns and pd.api.types.is_numeric_dtype(
+    #         CE2_Recoded[dep_var]
+    #     ):
+    #         corr = (
+    #             CE2_Recoded.corr()[dep_var]
+    #             .drop(dep_var)
+    #             .sort_values(key=lambda s: s.abs(), ascending=False)
+    #         )
+    #         corr_df = corr.reset_index().rename(
+    #             columns={"index": "variable", dep_var: "correlation"}
+    #         )
+    #     else:
+    #         corr_df = pd.DataFrame(columns=["variable", "correlation"])
+    #     corr_df.to_excel(writer, sheet_name="Correlations", index=False)
 
     return CE2_Recoded, profile_df
