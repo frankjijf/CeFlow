@@ -10,19 +10,13 @@ import sys
 import pandas as pd
 import numpy as np
 import streamlit as st
+from core.ce1_sampling import CE_Sampling
+from core.ce2_eda_recode import CE_EDA_Recode
+from core.ce3_var_redu import CE_Var_Redu
+from utils.ce_log_tool import printto
 
-
-
-# Add CE_PY_CODE to search path
+# 定义 BASE_DIR 以便后续路径拼接使用
 BASE_DIR = os.path.dirname(__file__)
-sys.path.append(os.path.join(BASE_DIR, "CE_PY_CODE"))
-
-
-
-from ce1_sampling import CE_Sampling
-from ce2_eda_recode import CE_EDA_Recode
-from ce3_var_redu import CE_Var_Redu
-from ce_log_tool import printto
 from functools import partial
 
 
