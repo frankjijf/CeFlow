@@ -1,5 +1,3 @@
-# Ignore Streamlit output results and logs
-
 # === Python bytecode ===
 __pycache__/
 *.py[cod]
