@@ -243,7 +243,7 @@ def pnum(
             # If missing create a full column of pd.NA with StringDtype
             vars2[col] = pd.Series(pd.NA, index=vars2.index, dtype="string")
 
-    cond = vars2["name"] == var
+    cond = vars2["var_name"] == var
     vars2.loc[cond, "var_lb"] = var_lb
     vars2.loc[cond, "var_ub"] = var_ub
     vars2.loc[cond, "var_median"] = var_median
@@ -583,7 +583,7 @@ def pbin(
                 logger.info(f"Recode for variable {var} written to {recode_py}")
                 logger.debug(f"Recode for variable {var} written to {recode_py}")
             # update vars2_bin
-            cond = vars2_bin["name"] == var
+            cond = vars2_bin["var_name"] == var
             vars2_bin.loc[cond, ["miss_cnt", "ones_cnt", "overall_good"]] = [
                 miss_cnt,
                 cnt_ck,
@@ -672,7 +672,7 @@ def pbin(
                     logger.debug(f"Profiling for variable {var} completed.")
         else:
             # update vars2_bin
-            cond = vars2_bin["name"] == var
+            cond = vars2_bin["var_name"] == var
             vars2_bin.loc[cond, ["miss_cnt", "ones_cnt", "overall_good"]] = [
                 miss_cnt,
                 cnt_ck,
@@ -687,7 +687,7 @@ def pbin(
                 )
     else:
         # update vars2_bin
-        cond = vars2_bin["name"] == var
+        cond = vars2_bin["var_name"] == var
         vars2_bin.loc[cond, ["miss_cnt", "ones_cnt", "overall_good"]] = [
             miss_cnt,
             np.nan,
@@ -767,16 +767,16 @@ def bin_cntl(
         )
         if prof_bin is not None:
             prof_bin_all.append(prof_bin)
-        vars2_bin.loc[vars2_bin["name"] == var, "new_var"] = ""
-        if vars2_bin.loc[vars2_bin["name"] == var, "overall_good"].iloc[0] == 1:
-            vars2_bin.loc[vars2_bin["name"] == var, "new_var"] = prefix + var
+        vars2_bin.loc[vars2_bin["var_name"] == var, "new_var"] = ""
+        if vars2_bin.loc[vars2_bin["var_name"] == var, "overall_good"].iloc[0] == 1:
+            vars2_bin.loc[vars2_bin["var_name"] == var, "new_var"] = prefix + var
             new_vars.append(prefix + var)
         if logger:
             logger.info(
-                f"Processed variable: {var}, overall_good={vars2_bin.loc[vars2_bin['name'] == var, 'overall_good'].iloc[0]}"
+                f"Processed variable: {var}, overall_good={vars2_bin.loc[vars2_bin['var_name'] == var, 'overall_good'].iloc[0]}"
             )
             logger.debug(
-                f"Processed variable: {var}, overall_good={vars2_bin.loc[vars2_bin['name'] == var, 'overall_good'].iloc[0]}"
+                f"Processed variable: {var}, overall_good={vars2_bin.loc[vars2_bin['var_name'] == var, 'overall_good'].iloc[0]}"
             )
     #
     with open(recode_py, "a") as f:
@@ -784,10 +784,10 @@ def bin_cntl(
         f.write(f"KEEP_LIST_B = {new_vars}\n")
 
     keep_vars_bin = vars2_bin[vars2_bin["overall_good"] == 1][
-        ["name", "new_var"]
+        ["var_name", "new_var"]
     ].copy()
     keep_vars_bin = keep_vars_bin.rename(
-        columns={"name": "orig_var", "new_var": "variable"}
+        columns={"var_name": "orig_var", "new_var": "variable"}
     )
 
     profile_df = (
@@ -880,7 +880,7 @@ def pnom(
                 f"Variable {var} missing count is {miss_cnt}, which is too high"
             )
         # Update vars2_nom
-        cond = vars2_nom["name"] == var
+        cond = vars2_nom["var_name"] == var
         vars2_nom.loc[cond, ["uniq_cnt", "miss_cnt", "max_cnt"]] = [
             np.nan,
             miss_cnt,
@@ -900,7 +900,7 @@ def pnom(
                     f"Variable {var} is too concentrated to use: {max_cnt} not in [{concrate_lower}, {concrate_upper}]"
                 )
             # Update vars2_nom
-            cond = vars2_nom["name"] == var
+            cond = vars2_nom["var_name"] == var
             vars2_nom.loc[cond, ["uniq_cnt", "miss_cnt", "max_cnt"]] = [
                 np.nan,
                 miss_cnt,
@@ -918,7 +918,7 @@ def pnom(
                         f"Variable {var} has has too many values to use: {uniq_cnt} exceeds the limit of {valcnt}"
                     )
                 # Update vars2_nom
-                cond = vars2_nom["name"] == var
+                cond = vars2_nom["var_name"] == var
                 vars2_nom.loc[cond, ["uniq_cnt", "miss_cnt", "max_cnt"]] = [
                     uniq_cnt,
                     miss_cnt,
@@ -926,13 +926,13 @@ def pnom(
                 ]
             else:
                 # Update vars2_nom
-                cond = vars2_nom["name"] == var
+                cond = vars2_nom["var_name"] == var
                 vars2_nom.loc[cond, ["uniq_cnt", "miss_cnt", "max_cnt"]] = [
                     uniq_cnt,
                     miss_cnt,
                     max_cnt,
                 ]
-                cond = vars2_nom["name"] == var
+                cond = vars2_nom["var_name"] == var
                 vars2_nom.loc[cond, ["overall_good"]] = 1
 
             # 1. Collapse values based on counts
@@ -1057,7 +1057,7 @@ def pnom(
                 logger.debug(f"Recode for variable {var} written to {recode_py}")
 
             # Update vars2_nom
-            cond = vars2_nom["name"] == var
+            cond = vars2_nom["var_name"] == var
             vars2_nom.loc[cond, ["uniq_cnt", "miss_cnt", "max_cnt"]] = [
                 uniq_cnt,
                 miss_cnt,
@@ -1191,16 +1191,16 @@ def nom_cntl(
         )
         if prof_nom is not None:
             prof_nom_all.append(prof_nom)
-        vars2_nom.loc[vars2_nom["name"] == var, "new_var"] = ""
-        if vars2_nom.loc[vars2_nom["name"] == var, "overall_good"].iloc[0] == 1:
-            vars2_nom.loc[vars2_nom["name"] == var, "new_var"] = prefix + var
+        vars2_nom.loc[vars2_nom["var_name"] == var, "new_var"] = ""
+        if vars2_nom.loc[vars2_nom["var_name"] == var, "overall_good"].iloc[0] == 1:
+            vars2_nom.loc[vars2_nom["var_name"] == var, "new_var"] = prefix + var
             new_vars.append(prefix + var)
         if logger:
             logger.info(
-                f"Processed variable: {var}, overall_good={vars2_nom.loc[vars2_nom['name'] == var, 'overall_good'].iloc[0]}"
+                f"Processed variable: {var}, overall_good={vars2_nom.loc[vars2_nom['var_name'] == var, 'overall_good'].iloc[0]}"
             )
             logger.debug(
-                f"Processed variable: {var}, overall_good={vars2_nom.loc[vars2_nom['name'] == var, 'overall_good'].iloc[0]}"
+                f"Processed variable: {var}, overall_good={vars2_nom.loc[vars2_nom['var_name'] == var, 'overall_good'].iloc[0]}"
             )
     #
     with open(recode_py, "a") as f:
@@ -1208,10 +1208,10 @@ def nom_cntl(
         f.write(f"KEEP_LIST_N = {new_vars}\n")
 
     keep_vars_nom = vars2_nom[vars2_nom["overall_good"] == 1][
-        ["name", "new_var"]
+        ["var_name", "new_var"]
     ].copy()
     keep_vars_nom = keep_vars_nom.rename(
-        columns={"name": "orig_var", "new_var": "variable"}
+        columns={"var_name": "orig_var", "new_var": "variable"}
     )
 
     profile_df = (
@@ -1304,7 +1304,7 @@ def pord(
             vars2_ord = pnum(
                 df=df, var=var, typ="O", vars2=vars2_ord, config=config, logger=logger
             )
-            cond = vars2_ord["name"] == var
+            cond = vars2_ord["var_name"] == var
             vars2_ord.loc[cond, ["overall_good"]] = 1
             if logger:
                 logger.info(f"Updated vars2_ord for {var}")
@@ -1387,7 +1387,7 @@ def ord_cntl(
         uniq_cnt = int(df[var].nunique(dropna=False))
         max_cnt = int(df[var].value_counts(dropna=False).max())
         #
-        m = vars2_ord["name"] == var
+        m = vars2_ord["var_name"] == var
         vars2_ord.loc[m, "miss_cnt"] = miss_cnt
         vars2_ord.loc[m, "uniq_cnt"] = uniq_cnt
         vars2_ord.loc[m, "max_cnt"] = max_cnt
@@ -1412,16 +1412,16 @@ def ord_cntl(
             )
             if prof_ord is not None:
                 prof_ord_all.append(prof_ord)
-            vars2_ord.loc[vars2_ord["name"] == var, "new_var"] = ""
-            if vars2_ord.loc[vars2_ord["name"] == var, "overall_good"].iloc[0] == 1:
-                vars2_ord.loc[vars2_ord["name"] == var, "new_var"] = prefix + var
+            vars2_ord.loc[vars2_ord["var_name"] == var, "new_var"] = ""
+            if vars2_ord.loc[vars2_ord["var_name"] == var, "overall_good"].iloc[0] == 1:
+                vars2_ord.loc[vars2_ord["var_name"] == var, "new_var"] = prefix + var
                 new_vars.append(prefix + var)
             if logger:
                 logger.info(
-                    f"Processed variable: {var}, overall_good={vars2_ord.loc[vars2_ord['name'] == var, 'overall_good'].iloc[0]}"
+                    f"Processed variable: {var}, overall_good={vars2_ord.loc[vars2_ord['var_name'] == var, 'overall_good'].iloc[0]}"
                 )
                 logger.debug(
-                    f"Processed variable: {var}, overall_good={vars2_ord.loc[vars2_ord['name'] == var, 'overall_good'].iloc[0]}"
+                    f"Processed variable: {var}, overall_good={vars2_ord.loc[vars2_ord['var_name'] == var, 'overall_good'].iloc[0]}"
                 )
     #
     with open(recode_py, "a") as f:
@@ -1429,10 +1429,10 @@ def ord_cntl(
         f.write(f"KEEP_LIST_O = {new_vars}\n")
 
     keep_vars_ord = vars2_ord[vars2_ord["overall_good"] == 1][
-        ["name", "new_var"]
+        ["var_name", "new_var"]
     ].copy()
     keep_vars_ord = keep_vars_ord.rename(
-        columns={"name": "orig_var", "new_var": "variable"}
+        columns={"var_name": "orig_var", "new_var": "variable"}
     )
 
     profile_df = (
@@ -1503,7 +1503,7 @@ def pcont(
         vars2_cont = pnum(
             df=df, var=var, typ="C", vars2=vars2_cont, config=config, logger=logger
         )
-        cond = vars2_cont["name"] == var
+        cond = vars2_cont["var_name"] == var
         vars2_cont.loc[cond, ["overall_good"]] = 1
         if logger:
             logger.info(f"Updated vars2_cont for {var}")
@@ -1597,7 +1597,7 @@ def cont_cntl(
         lo = df[var].quantile(p_lo / 100)
         hi = df[var].quantile(p_hi / 100)
         #
-        m = vars2_cont["name"] == var
+        m = vars2_cont["var_name"] == var
         vars2_cont.loc[m, "miss_cnt"] = miss_cnt
         vars2_cont.loc[m, "P_lo"] = lo
         vars2_cont.loc[m, "P_hi"] = hi
@@ -1631,19 +1631,19 @@ def cont_cntl(
                 )
                 if prof_cont is not None:
                     prof_cont_all.append(prof_cont)
-                vars2_cont.loc[vars2_cont["name"] == var, "new_var"] = ""
+                vars2_cont.loc[vars2_cont["var_name"] == var, "new_var"] = ""
                 if (
-                    vars2_cont.loc[vars2_cont["name"] == var, "overall_good"].iloc[0]
+                    vars2_cont.loc[vars2_cont["var_name"] == var, "overall_good"].iloc[0]
                     == 1
                 ):
-                    vars2_cont.loc[vars2_cont["name"] == var, "new_var"] = prefix + var
+                    vars2_cont.loc[vars2_cont["var_name"] == var, "new_var"] = prefix + var
                     new_vars.append(prefix + var)
                 if logger:
                     logger.info(
-                        f"Processed variable: {var}, overall_good={vars2_cont.loc[vars2_cont['name'] == var, 'overall_good'].iloc[0]}"
+                        f"Processed variable: {var}, overall_good={vars2_cont.loc[vars2_cont['var_name'] == var, 'overall_good'].iloc[0]}"
                     )
                     logger.debug(
-                        f"Processed variable: {var}, overall_good={vars2_cont.loc[vars2_cont['name'] == var, 'overall_good'].iloc[0]}"
+                        f"Processed variable: {var}, overall_good={vars2_cont.loc[vars2_cont['var_name'] == var, 'overall_good'].iloc[0]}"
                     )
     #
     with open(recode_py, "a") as f:
@@ -1651,10 +1651,10 @@ def cont_cntl(
         f.write(f"KEEP_LIST_C = {new_vars}\n")
 
     keep_vars_cont = vars2_cont[vars2_cont["overall_good"] == 1][
-        ["name", "new_var"]
+        ["var_name", "new_var"]
     ].copy()
     keep_vars_cont = keep_vars_cont.rename(
-        columns={"name": "orig_var", "new_var": "variable"}
+        columns={"var_name": "orig_var", "new_var": "variable"}
     )
 
     profile_df = (
@@ -1739,7 +1739,7 @@ def CE_EDA_Recode(
 
     # 4. Binary variables
     if bin_vars:
-        vars2_bin = pd.DataFrame({"name": bin_vars})
+        vars2_bin = pd.DataFrame({"var_name": bin_vars})
         typ_map = {
             v: ("numeric" if pd.api.types.is_numeric_dtype(workfile[v]) else "str")
             for v in bin_vars
@@ -1777,7 +1777,7 @@ def CE_EDA_Recode(
 
     # 5. Nominal variables
     if nom_vars:
-        vars2_nom = pd.DataFrame({"name": nom_vars})
+        vars2_nom = pd.DataFrame({"var_name": nom_vars})
         typ_map = {
             v: ("numeric" if pd.api.types.is_numeric_dtype(workfile[v]) else "str")
             for v in nom_vars
@@ -1815,7 +1815,7 @@ def CE_EDA_Recode(
 
     # 6. Ordinal variables
     if ord_vars:
-        vars2_ord = pd.DataFrame({"name": ord_vars})
+        vars2_ord = pd.DataFrame({"var_name": ord_vars})
         vars2_ord, prof_ord, keep_vars_ord = ord_cntl(
             df=workfile,
             ord_vars=ord_vars,
@@ -1847,7 +1847,7 @@ def CE_EDA_Recode(
 
     # 7. Continuous variables
     if cont_vars:
-        vars2_cont = pd.DataFrame({"name": cont_vars})
+        vars2_cont = pd.DataFrame({"var_name": cont_vars})
         vars2_cont, prof_cont, keep_vars_cont = cont_cntl(
             df=workfile,
             cont_vars=cont_vars,
