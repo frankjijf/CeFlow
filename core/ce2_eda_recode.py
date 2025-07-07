@@ -1740,6 +1740,7 @@ def CE_EDA_Recode(
     # 4. Binary variables
     if bin_vars:
         vars2_bin = pd.DataFrame({"var_name": bin_vars})
+        vars2_bin["overall_good"] = 0
         typ_map = {
             v: ("numeric" if pd.api.types.is_numeric_dtype(workfile[v]) else "str")
             for v in bin_vars
@@ -1778,6 +1779,7 @@ def CE_EDA_Recode(
     # 5. Nominal variables
     if nom_vars:
         vars2_nom = pd.DataFrame({"var_name": nom_vars})
+        vars2_nom["overall_good"] = 0
         typ_map = {
             v: ("numeric" if pd.api.types.is_numeric_dtype(workfile[v]) else "str")
             for v in nom_vars
@@ -1816,6 +1818,7 @@ def CE_EDA_Recode(
     # 6. Ordinal variables
     if ord_vars:
         vars2_ord = pd.DataFrame({"var_name": ord_vars})
+        vars2_ord["overall_good"] = 0
         vars2_ord, prof_ord, keep_vars_ord = ord_cntl(
             df=workfile,
             ord_vars=ord_vars,
@@ -1848,6 +1851,7 @@ def CE_EDA_Recode(
     # 7. Continuous variables
     if cont_vars:
         vars2_cont = pd.DataFrame({"var_name": cont_vars})
+        vars2_cont["overall_good"] = 0
         vars2_cont, prof_cont, keep_vars_cont = cont_cntl(
             df=workfile,
             cont_vars=cont_vars,
