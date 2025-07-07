@@ -1,0 +1,6 @@
+2025-07-07 22:13:10,463 INFO: *** 2. EDA, profiling and Recode ***
+2025-07-07 22:13:10,472 INFO: Excluded Validation rows: 263
+2025-07-07 22:13:10,473 INFO: No binary variables to process.
+2025-07-07 22:13:10,473 INFO: nom_cntl_start, number of nominal variables = 6
+2025-07-07 22:13:10,475 INFO: Processing nominal variable pnom: Name, type: str
+2025-07-07 22:13:10,482 WARNING: Variable Name is too concentrated to use: 67 not in [1999.9999999999995, 18000.0]

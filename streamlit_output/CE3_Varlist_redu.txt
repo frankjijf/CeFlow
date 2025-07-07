@@ -1,0 +1,3 @@
+%let varlist_redu =
+R1_Parch R1_Embarked R1_Sex R1_Fare R1_SibSp R1_Pclass R1_Age R1_PassengerId
+;

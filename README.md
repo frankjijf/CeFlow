@@ -19,15 +19,19 @@ dataset.
 
 ## Repository Structure
 
+
 ```
-Archive/          Previous versions of the Streamlit interface.
-CE_PY_CODE/       Core modules and the main Streamlit application.
-  ├─ ce1_sampling.py      Sampling utilities.
-  ├─ ce2_eda_recode.py    EDA and recoding utilities.
-  ├─ ce3_var_redu.py      Variable reduction utilities.
-  ├─ ce_log_tool.py       Simple logging helper.
-  ├─ ce_ide.py            Streamlit interface.
-  └─ Titanic_test/        Example dataset and variable lists.
+CeFlow/                 Main package and core modules
+│   ├─ core/            Core logic modules
+│   │   ├─ ce1_sampling.py      Sampling utilities
+│   │   ├─ ce2_eda_recode.py    EDA and recoding utilities
+│   │   └─ ce3_var_redu.py      Variable reduction utilities
+│   ├─ utils/           Utility modules
+│   │   └─ ce_log_tool.py       Simple logging helper
+│   ├─ ce_ide_main.py   Streamlit interface (main entry)
+│   ├─ __init__.py      CeFlow package initializer
+│   └─ tests/           Unit tests
+│       └─ test_imports.py      Import tests
 ```
 
 The directory `streamlit_output/` (created at runtime) holds results and logs
@@ -43,7 +47,7 @@ Install main dependencies:
 pip install -r requirements.txt
 ```
 
-For development and testing tools (black, flake8, pytest):
+For development and testing tools (black, flake8):
 ```bash
 pip install -r requirements-dev.txt
 ```
@@ -53,16 +57,16 @@ pip install -r requirements-dev.txt
 Execute the following command from the repository root:
 
 ```bash
-streamlit run CE_PY_CODE/ce_ide.py
+streamlit run CeFlow/ce_ide_main.py
 ```
 
 The interface allows you to upload a dataset (CSV or Excel) or use the provided
-Titanic sample located in `CE_PY_CODE/Titanic_test`. Follow the sidebar
+Titanic sample located in `CeFlow/Titanic_test`. Follow the sidebar
 navigation to configure variables, run sampling, perform recoding and run CE3.
 Outputs and logs are written to `streamlit_output/` by default.
 ## Keeping the Repository Clean
 
-The folder `CE_PY_CODE/streamlit_output/` holds temporary outputs such as logs
+The folder `CeFlow/streamlit_output/` holds temporary outputs such as logs
 and recoded datasets. These files are generated when running the Streamlit
 application and should not be committed to Git. The `.gitignore` file at the
 repository root already excludes this directory. If you create additional
@@ -74,9 +78,9 @@ runtime files, append their patterns to `.gitignore` to keep the history clean.
 The modules can also be imported directly in your own scripts:
 
 ```python
-from CE_PY_CODE.ce1_sampling import CE_Sampling
-from CE_PY_CODE.ce2_eda_recode import CE_EDA_Recode
-from CE_PY_CODE.ce3_var_redu import CE_Var_Redu
+from CeFlow.ce1_sampling import CE_Sampling
+from CeFlow.ce2_eda_recode import CE_EDA_Recode
+from CeFlow.ce3_var_redu import CE_Var_Redu
 ```
 
 Each function accepts a configuration dictionary; see the source code for
